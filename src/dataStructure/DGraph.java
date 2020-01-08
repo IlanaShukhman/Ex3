@@ -12,7 +12,13 @@ import java.util.Map.Entry;
 
 import javax.management.RuntimeErrorException;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.google.gson.Gson;
+
 import gui.Graph_GUI;
+import utils.Point3D;
 
 /**
  * This class represents a directional weighted graph.
@@ -21,8 +27,8 @@ import gui.Graph_GUI;
  *
  */
 public class DGraph implements graph,Serializable{
-	private HashMap<Integer, node_data> Node_Hash;
-	private HashMap<Integer, HashMap<Integer, edge_data>> Edge_Hash;
+	private HashMap<Integer, node_data> Nodes;
+	private HashMap<Integer, HashMap<Integer, edge_data>> Edges;
 	private int ModeCount;
 	private int EdgeHashSize;
 	
@@ -33,8 +39,8 @@ public class DGraph implements graph,Serializable{
 	 * Empty Constructor
 	 */
 	public DGraph() {
-		this.Node_Hash=new HashMap<Integer, node_data>();
-		this.Edge_Hash=new HashMap<Integer, HashMap<Integer, edge_data>>();
+		this.Nodes=new HashMap<Integer, node_data>();
+		this.Edges=new HashMap<Integer, HashMap<Integer, edge_data>>();
 		this.ModeCount=0;
 		this.EdgeHashSize=0;
 	}
@@ -45,8 +51,8 @@ public class DGraph implements graph,Serializable{
 	 * @param Edge_Hash
 	 */
 	public DGraph(HashMap<Integer, node_data> Node_Hash, HashMap<Integer, HashMap<Integer, edge_data>>Edge_Hash) {
-		this.Node_Hash=Node_Hash;
-		this.Edge_Hash = Edge_Hash;
+		this.Nodes=Node_Hash;
+		this.Edges = Edge_Hash;
 
 
 	}//DGraph
@@ -57,60 +63,49 @@ public class DGraph implements graph,Serializable{
 	 */
 	public DGraph(DGraph g) {
 
-		this.Node_Hash=g.get_Node_Hash(); 
-		this.Edge_Hash=g.get_Edge_Hash();
+		this.Nodes=g.get_Node_Hash(); 
+		this.Edges=g.get_Edge_Hash();
 		this.ModeCount = g.getMC();
 		this.EdgeHashSize = g.edgeSize();
 	}//DGraph
-	
 	/**
 	 * Init a graph from file
 	 * @param file_name
 	 */
-	public void init(String file_name) {
-		this.IOException=false;
-		this.ClassNotFoundException=false;
-		DGraph g = new DGraph(); 
+	public void init(String data) {
+		 try {
+			 	JSONObject graph = new JSONObject(data);
+	            JSONArray nodes = graph.getJSONArray("Nodes");
+	            JSONArray edges = graph.getJSONArray("Edges");
 
-		try
-		{    
-			FileInputStream file = new FileInputStream(file_name); 
-			ObjectInputStream in = new ObjectInputStream(file); 
+	            int i;
+	            int s;
+	            for(i = 0; i < nodes.length(); ++i) {
+	                s = nodes.getJSONObject(i).getInt("id");
+	                String pos = nodes.getJSONObject(i).getString("pos");
+	                Point3D p = new Point3D(pos);
+	                this.addNode(new NodeData(s, p));
+	            }
 
-			g = (DGraph)in.readObject();  
-			in.close(); 
-			file.close(); 
-			this.Node_Hash=g.get_Node_Hash(); 
-			this.Edge_Hash=g.get_Edge_Hash();
-			this.ModeCount = g.getMC();
-			this.EdgeHashSize = g.edgeSize();
-			//System.out.println("Object has been deserialized"); 
-		}//try 
-
-		catch(IOException ex) 
-		{ 
-			IOException=true;
-			ex.printStackTrace();
-			System.out.println("IOException");
-		} 
-
-		catch(ClassNotFoundException ex) 
-		{ 
-			this.ClassNotFoundException=true;
-			//ex.printStackTrace();
-			System.out.println("ClassNotFoundException");
-		} 
+	            for(i = 0; i < edges.length(); ++i) {
+	                s = edges.getJSONObject(i).getInt("src");
+	                int d = edges.getJSONObject(i).getInt("dest");
+	                double w = edges.getJSONObject(i).getDouble("w");
+	                this.connect(s, d, w);
+	            }
+	        } catch (Exception var12) {
+	            var12.printStackTrace();
+	        }
 
 	}//init
-
 	/**
 	 * Getters.
 	 */
 	public HashMap<Integer, node_data> get_Node_Hash(){
-		return this.Node_Hash;
+		return this.Nodes;
 	}
 	public HashMap<Integer, HashMap<Integer, edge_data>> get_Edge_Hash(){
-		return this.Edge_Hash;
+		return this.Edges;
 	}
 
 
@@ -120,9 +115,9 @@ public class DGraph implements graph,Serializable{
 	 * @return the node_data by the node_id, null if none.
 	 */
 	public node_data getNode(int key) {
-		if(!Node_Hash.containsKey(key))
+		if(!Nodes.containsKey(key))
 			return null;
-		return Node_Hash.get(key);
+		return Nodes.get(key);
 	}
 
 	/**
@@ -133,11 +128,11 @@ public class DGraph implements graph,Serializable{
 	 * @return the data of the edge (src,dest), null if none.
 	 */
 	public edge_data getEdge(int src, int dest) {
-		if(!Node_Hash.containsKey(src)||!Node_Hash.containsKey(dest))
+		if(!Nodes.containsKey(src)||!Nodes.containsKey(dest))
 			return null;
 
-		if(this.Edge_Hash.containsKey(src)) {
-			HashMap<Integer,edge_data> h=Edge_Hash.get(src);
+		if(this.Edges.containsKey(src)) {
+			HashMap<Integer,edge_data> h=Edges.get(src);
 			if(h.containsKey(dest)) {
 				return h.get(dest);
 			}//if
@@ -154,11 +149,11 @@ public class DGraph implements graph,Serializable{
 		int key=n.getKey();
 		if(n.getWeight()<0)
 			throw new RuntimeException("ERR: Weight cannot be negative");
-		if(Node_Hash.containsKey(key)) {
+		if(Nodes.containsKey(key)) {
 			//throw new RuntimeException("ERR: This node already exist");
 			throw new RuntimeException("ERR:Cannot connect between unknown node");
 		}
-		Node_Hash.put(key,n);
+		Nodes.put(key,n);
 		this.ModeCount++;
 	}//addNode
 
@@ -177,26 +172,26 @@ public class DGraph implements graph,Serializable{
 			throw new RuntimeException("ERR: Weight cannot be 0 or negetive");
 
 		//if the nodes don't exist
-		if(!Node_Hash.containsKey(dest) || !Node_Hash.containsKey(src))
+		if(!Nodes.containsKey(dest) || !Nodes.containsKey(src))
 			throw new RuntimeException("ERR:Cannot connect between unknown node");
 
 		EdgeData edge=new EdgeData(src,dest,w);
 
 		//if the src exist in the Edge_Hash
-		if(this.Edge_Hash.containsKey(src)) {
+		if(this.Edges.containsKey(src)) {
 			//if we want to change an existing edge, remove it and add it later
 			if(getEdge(src,dest)!=null){
-				this.Edge_Hash.get(src).remove(dest);
+				this.Edges.get(src).remove(dest);
 			}//if
 
-			this.Edge_Hash.get(src).put(dest, edge);
+			this.Edges.get(src).put(dest, edge);
 			this.ModeCount++;
 		}//if
 
 		else {//if the src doesn't exist in the Edge_Hash
 			HashMap<Integer, edge_data> h=new HashMap<Integer,edge_data>();
 			h.put(dest, edge);
-			this.Edge_Hash.put(src, h);			
+			this.Edges.put(src, h);			
 		}
 		this.EdgeHashSize++;
 		this.ModeCount++;
@@ -209,7 +204,7 @@ public class DGraph implements graph,Serializable{
 	 * @return Collection<node_data>
 	 */
 	public Collection<node_data> getV() {
-		return this.Node_Hash.values();
+		return this.Nodes.values();
 	}//getV
 
 	/**
@@ -221,8 +216,8 @@ public class DGraph implements graph,Serializable{
 	 */
 	public Collection<edge_data> getE(int node_id) {
 		Collection<edge_data> c=null;
-		if(this.Edge_Hash.get(node_id)!=null)
-			c=this.Edge_Hash.get(node_id).values();
+		if(this.Edges.get(node_id)!=null)
+			c=this.Edges.get(node_id).values();
 		return c;
 	}//getE
 
@@ -234,23 +229,23 @@ public class DGraph implements graph,Serializable{
 	 * @param key
 	 */
 	public node_data removeNode(int key) {
-		if(!this.Edge_Hash.isEmpty()) {
+		if(!this.Edges.isEmpty()) {
 			//remove all the edges that key is the source:
-			this.EdgeHashSize-=this.Edge_Hash.get(key).size();
-			this.Edge_Hash.remove(key);
+			this.EdgeHashSize-=this.Edges.get(key).size();
+			this.Edges.remove(key);
 
 			//remove all the edges that key is the destination:
-			Iterator<Integer> it = this.Edge_Hash.keySet().iterator();
+			Iterator<Integer> it = this.Edges.keySet().iterator();
 			while (it.hasNext()) {
 				Integer src = it.next();
-				if(this.Edge_Hash.get(src).get(key)!=null) {
-					this.Edge_Hash.get(src).remove(key);
+				if(this.Edges.get(src).get(key)!=null) {
+					this.Edges.get(src).remove(key);
 					this.EdgeHashSize--;
 				}//if
 			}//while
 		}//if
 		this.ModeCount++;
-		return this.Node_Hash.remove(key);
+		return this.Nodes.remove(key);
 	}//removeNode
 
 
@@ -264,7 +259,7 @@ public class DGraph implements graph,Serializable{
 	public edge_data removeEdge(int src, int dest) {
 		this.ModeCount++;
 		this.EdgeHashSize--;
-		return this.Edge_Hash.get(src).remove(dest);
+		return this.Edges.get(src).remove(dest);
 	}//removeEdge
 
 	/** return the number of vertices (nodes) in the graph.
@@ -272,7 +267,7 @@ public class DGraph implements graph,Serializable{
 	 * @return
 	 */
 	public int nodeSize() {
-		return Node_Hash.size();
+		return Nodes.size();
 	}//nodeSize
 
 	/** 
@@ -301,7 +296,7 @@ public class DGraph implements graph,Serializable{
 	{
 		if(a instanceof DGraph)
 		{
-			if(((DGraph) a).get_Edge_Hash().equals(this.Edge_Hash) && ((DGraph) a).get_Node_Hash().equals(this.Node_Hash))
+			if(((DGraph) a).get_Edge_Hash().equals(this.Edges) && ((DGraph) a).get_Node_Hash().equals(this.Nodes))
 				return true;
 			return false;
 		}//if
@@ -316,7 +311,7 @@ public class DGraph implements graph,Serializable{
 	}//show
 	@Override
 	public String toString() {
-		return "DGraph [Node_Hash=" + Node_Hash + "\nEdge_Hash=" + Edge_Hash + "\nModeCount=" + ModeCount
+		return "DGraph [Node_Hash=" + Nodes + "\nEdge_Hash=" + Edges + "\nModeCount=" + ModeCount
 				+ "\nEdgeHashSize=" + EdgeHashSize + "]";
 	}
 }
