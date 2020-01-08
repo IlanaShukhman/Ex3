@@ -3,6 +3,7 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
@@ -62,17 +63,18 @@ public class Graph_GUI extends JFrame implements ActionListener, MouseListener,R
 	}
 
 	public Graph_GUI(DGraph g){
-		width=800;
+		width=1000;
 		height=600;
 		graph=g;
 		state=false;
 		mc=graph.getMC();
-		rx=this.rangeX();
-		ry=this.rangeY();
+		rx=new Range(35.185,35.215);
+		ry=new Range(32.095, 32.113);
 
 		Thread t=new Thread(this);
 		t.start();
 	}//Graph_GUI
+	
 
 	/**
 	 * Initialize the gui window.
@@ -152,23 +154,28 @@ public class Graph_GUI extends JFrame implements ActionListener, MouseListener,R
 	 */
 	public void paint(Graphics g){
 		super.paint(g);
+		
+		Graphics2D g2 = (Graphics2D) g;
+		
 		double proportionX=width/rx.get_length();
 		double proportionY=(0-height)/ry.get_length();
-
-		g.setColor(Color.BLACK);
-
-		g.fillOval(width/2, height/2, 5, 5);
-
+		g2.setColor(Color.BLACK);
+		
+		
+		
 		Iterator<Integer> it = graph.get_Node_Hash().keySet().iterator();
 		while (it.hasNext()) {
-			//g.setColor(Color.BLACK);
 			Integer v = it.next();
 			Point3D src=graph.get_Node_Hash().get(v).getLocation();
 			int x0= (int) ((src.x()-rx.get_min())*proportionX);
 			int y0=(int) ((src.y()-ry.get_max())*proportionY);
+			
 			//draw all the nodes
-			g.fillOval(x0, y0, 5, 5);
-			g.drawString(Integer.toString(graph.get_Node_Hash().get(v).getKey()), x0, y0+20);
+			
+			
+			g2.fillOval(x0, y0, 5, 5);
+			g2.drawString(Integer.toString(graph.get_Node_Hash().get(v).getKey()), x0, y0+20);
+		
 
 			//it is in try and catch because not all the nodes are in the edge list
 			//so it might throw an error, we would like to avoid it
@@ -193,8 +200,9 @@ public class Graph_GUI extends JFrame implements ActionListener, MouseListener,R
 					g.drawString(Integer.toString(graph.get_Node_Hash().get(u).getKey()), x1, y1+20);
 
 					//add the weight of the edge
-					g.drawString(Double.toString(graph.get_Edge_Hash().get(v).get(u).getWeight()),
-							x1*3/4+x0*1/4, y1*3/4+y0*1/4);
+					double weight=graph.get_Edge_Hash().get(v).get(u).getWeight();
+					weight = (double) ((int) (weight * 100)) / (100);
+					g.drawString(Double.toString(weight), x1*3/4 + x0*1/4, y1*3/4 + y0*1/4);
 
 					g.setColor(Color.BLACK);
 
@@ -215,7 +223,7 @@ public class Graph_GUI extends JFrame implements ActionListener, MouseListener,R
 				graph.get_Edge_Hash().get(v).get(u).setInfo(null);
 			}//while
 		}//while
-
+		
 
 	}//paint
 
@@ -239,6 +247,10 @@ public class Graph_GUI extends JFrame implements ActionListener, MouseListener,R
 			if(graph.get_Node_Hash().get(node).getLocation().x()<min)
 				min=graph.get_Node_Hash().get(node).getLocation().x();
 		}//while
+		
+		System.out.println(max);
+		System.out.println(min);
+		
 		if(max==0 && min == 0) {
 			max=1;
 			min=-1;
@@ -277,10 +289,19 @@ public class Graph_GUI extends JFrame implements ActionListener, MouseListener,R
 			if(graph.get_Node_Hash().get(node).getLocation().y()<min)
 				min=graph.get_Node_Hash().get(node).getLocation().y();
 		}//for each
+		
+		
+		System.out.println(max);
+		System.out.println(min);
+		
+		
+		
+		
 		if(max==0 && min == 0) {
 			max=1;
 			min=-1;
 		}
+		
 		else {
 			if(max==0)
 				max=0-min;
