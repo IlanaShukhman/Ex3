@@ -63,8 +63,10 @@ public class SimpleGameClient {
 			int src_node = 0;  // arbitrary node, you should start at one of the fruits
 			for(int a = 0;a<rs;a++) {
 				game.addRobot(src_node+a);
+				System.out.println(game.getRobots().toString());
 			}
 		}
+		
 		catch (JSONException e) {e.printStackTrace();}
 		game.startGame();
 		// should be a Thread!!!
