@@ -8,6 +8,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/java-json.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/GameServer_v0.27.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Ilana/eclipse-workspace/Ex3/lib/gson-2.8.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
