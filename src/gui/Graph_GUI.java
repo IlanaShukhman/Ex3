@@ -155,11 +155,11 @@ public class Graph_GUI extends JFrame implements ActionListener, MouseListener,R
 	public void paint(Graphics g){
 		super.paint(g);
 		
-		Graphics2D g2 = (Graphics2D) g;
+		
 		
 		double proportionX=width/rx.get_length();
 		double proportionY=(0-height)/ry.get_length();
-		g2.setColor(Color.BLACK);
+		g.setColor(Color.BLACK);
 		
 		
 		
@@ -173,8 +173,8 @@ public class Graph_GUI extends JFrame implements ActionListener, MouseListener,R
 			//draw all the nodes
 			
 			
-			g2.fillOval(x0, y0, 5, 5);
-			g2.drawString(Integer.toString(graph.get_Node_Hash().get(v).getKey()), x0, y0+20);
+			g.fillOval(x0, y0, 5, 5);
+			g.drawString(Integer.toString(graph.get_Node_Hash().get(v).getKey()), x0, y0+20);
 		
 
 			//it is in try and catch because not all the nodes are in the edge list

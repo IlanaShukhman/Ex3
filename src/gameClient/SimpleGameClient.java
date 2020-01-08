@@ -1,5 +1,6 @@
 package gameClient;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -30,8 +31,11 @@ import dataStructure.graph;
  *
  */
 public class SimpleGameClient {
+	private static List<Robot> robots;
+	private static List<Fruit> fruits;
+	
 	public static void main(String[] a) {
-		test1();
+		 test1();
 	}
 	public static void test1() {
 		int scenario_num = 2;
@@ -52,21 +56,42 @@ public class SimpleGameClient {
 			Iterator<String> f_iter = game.getFruits().iterator();
 			while(f_iter.hasNext()) {System.out.println(f_iter.next());}	
 			int src_node = 0;  // arbitrary node, you should start at one of the fruits
+			
 			for(int a = 0;a<rs;a++) {
 				game.addRobot(src_node+a);
-				System.out.println(game.getRobots().toString());
 			}
 		}
-		
 		catch (JSONException e) {e.printStackTrace();}
+		
+		robots=new ArrayList<Robot>();
+		Robot robot=new Robot();
+		robot.initFromJson(game.getRobots().get(0));
+		robots.add(robot);
+		
+		fruits=new ArrayList<Fruit>();
+		Fruit fruit=new Fruit();
+		fruit.initFromJson(game.getFruits().get(0));
+		fruits.add(fruit);
+		
+		
 		game.startGame();
+		
+		
+		MyGameGUI gui=new MyGameGUI(gg, robots, fruits);
+		
+		
 		// should be a Thread!!!
 		while(game.isRunning()) {
 			moveRobots(game, gg);
 		}
+		
+		
+		
 		String results = game.toString();
 		System.out.println("Game Over: "+results);
 	}
+	
+	
 	/** 
 	 * Moves each of the robots along the edge, 
 	 * in case the robot is on a node the next destination (next edge) is chosen (randomly).
@@ -86,12 +111,16 @@ public class SimpleGameClient {
 					int rid = ttt.getInt("id");
 					int src = ttt.getInt("src");
 					int dest = ttt.getInt("dest");
+					String pos = ttt.getString("pos");
+					robots.get(i).set_pos(pos);
+					System.out.println(robots.get(i).get_pos());
 
 					if(dest==-1) {	
 						dest = nextNode(gg, src);
 						game.chooseNextEdge(rid, dest);
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println(ttt);
+						
 					}
 				} 
 				catch (JSONException e) {e.printStackTrace();}

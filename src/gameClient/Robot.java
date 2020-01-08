@@ -8,19 +8,19 @@ import oop_dataStructure.oop_graph;
 import utils.Point3D;
 
 public class Robot {
-    private int _id;
-    private Point3D _pos;
-    private double _value;
-    private int _src;
-    private int _dest;
-    private double _speed;
-    
-    public Robot()
-    {
-    	
-    }
+	private int _id;
+	private Point3D _pos;
+	private double _value;
+	private int _src;
+	private int _dest;
+	private double _speed;
 
-    public Robot(int _id, Point3D _pos, double _value, int _src, int _dest, double _speed) {
+	public Robot()
+	{
+
+	}
+
+	public Robot(int _id, Point3D _pos, double _value, int _src, int _dest, double _speed) {
 		super();
 		this._id = _id;
 		this._pos = _pos;
@@ -31,28 +31,28 @@ public class Robot {
 	}
 
 	public void initFromJson(String json)
-    {
-    	try {
-    	 JSONObject text = new JSONObject(json);
-         this._id = text.getJSONObject("Robot").getInt("id");
-         this._src = text.getJSONObject("Robot").getInt("src");
-         this._dest = text.getJSONObject("Robot").getInt("dest");
-         String pos= text.getJSONObject("Robot").getString("pos");
-         this._pos= new Point3D(pos);
-         this._speed = text.getJSONObject("Robot").getDouble("speed");
-         this._value = text.getJSONObject("Robot").getDouble("value");
-    	}
-    	catch (Exception e) {
-    		e.printStackTrace();
+	{
+		try {
+			JSONObject text = new JSONObject(json);
+			this._id = text.getJSONObject("Robot").getInt("id");
+			this._src = text.getJSONObject("Robot").getInt("src");
+			this._dest = text.getJSONObject("Robot").getInt("dest");
+			String pos= text.getJSONObject("Robot").getString("pos");
+			this._pos= new Point3D(pos);
+			this._speed = text.getJSONObject("Robot").getDouble("speed");
+			this._value = text.getJSONObject("Robot").getDouble("value");
 		}
-    }//initFromJson
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}//initFromJson
 
 
 
-/**
- * Getters & Setters:
- * @return
- */
+	/**
+	 * Getters & Setters:
+	 * @return
+	 */
 	public int get_id() {
 		return _id;
 	}
@@ -79,7 +79,26 @@ public class Robot {
 	}
 
 
-
+	public void set_pos(String _pos) {
+		int count=0;
+		String _x = "";
+		String _y = "";
+		
+		for (int i = 0; i < _pos.length(); i++) {
+			if(_pos.charAt(i)==',' && count==0) {
+				_x = _pos.substring(0,i-1);
+				count=i;
+			}
+			else if(_pos.charAt(i)==',' && count!=0) {
+				_y=_pos.substring(count+1, i-1);
+			}
+		}
+		double x=Double.parseDouble(_x);
+		double y=Double.parseDouble(_y);
+		Point3D p=new Point3D(x,y);
+		
+		this._pos=p;
+	}
 
 	public double get_value() {
 		return _value;
@@ -126,22 +145,22 @@ public class Robot {
 	public void set_speed(double _speed) {
 		this._speed = _speed;
 	}
-	 public String toJSON() {
-	        String ans = "{\"Robot\":{\"id\":" + this._id + "," + "\"value\":" + this._value + "," + "\"src\":" + this._src + "," + "\"dest\":" + this._dest + "," + "\"speed\":" + this._speed + "," + "\"pos\":\"" + this._pos.toString() + "\"" + "}" + "}";
-	        return ans;
-	 }
-	 
-	 @Override
+	public String toJSON() {
+		String ans = "{\"Robot\":{\"id\":" + this._id + "," + "\"value\":" + this._value + "," + "\"src\":" + this._src + "," + "\"dest\":" + this._dest + "," + "\"speed\":" + this._speed + "," + "\"pos\":\"" + this._pos.toString() + "\"" + "}" + "}";
+		return ans;
+	}
+
+	@Override
 	public String toString() {
 		return toJSON();
 	}
 
 	public static void main(String[] a) {
-	        String s1="{\"Robot\":{\"id\":0,\"value\":0.0,\"src\":0,\"dest\":-1,\"speed\":1.0,\"pos\":\"35.18753053591606,32.10378225882353,0.0\"}}";
-	        System.out.println(s1+"\n");
-	        Robot r=new Robot();
-	        r.initFromJson(s1);
-	        System.out.println(r);
-	    }
-   
+		String s1="{\"Robot\":{\"id\":0,\"value\":0.0,\"src\":0,\"dest\":-1,\"speed\":1.0,\"pos\":\"35.18753053591606,32.10378225882353,0.0\"}}";
+		System.out.println(s1+"\n");
+		Robot r=new Robot();
+		r.initFromJson(s1);
+		System.out.println(r);
+	}
+
 }
