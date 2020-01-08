@@ -32,16 +32,6 @@ import dataStructure.graph;
 public class SimpleGameClient {
 	public static void main(String[] a) {
 		test1();
-		//test2();
-	}
-	private static void test2() {
-		int scenario_num = 2;
-		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
-		String g = game.getGraph();
-		System.out.println(g+"\n");
-		DGraph gg = new DGraph();
-		gg.init(g);
-		System.out.println(gg);
 	}
 	public static void test1() {
 		int scenario_num = 2;
@@ -51,6 +41,7 @@ public class SimpleGameClient {
 		gg.init(g);
 		String info = game.toString();
 		JSONObject line;
+		
 		try {
 			line = new JSONObject(info);
 			JSONObject ttt = line.getJSONObject("GameServer");
