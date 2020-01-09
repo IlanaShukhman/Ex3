@@ -38,37 +38,45 @@ public class SimpleGameClient {
 		 test1();
 	}
 	public static void test1() {
-		int scenario_num = 2;
+		int scenario_num = 22;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
-		DGraph gg = new DGraph();
-		gg.init(g);
+		DGraph gameGraph = new DGraph();
+		gameGraph.init(g);
+		
+		robots=new ArrayList<Robot>();
+		fruits=new ArrayList<Fruit>();
+		
 		String info = game.toString();
 		JSONObject line;
 		
 		try {
 			line = new JSONObject(info);
-			JSONObject ttt = line.getJSONObject("GameServer");
-			int rs = ttt.getInt("robots");
+			JSONObject GameServer = line.getJSONObject("GameServer");
+			
+			int numRobots = GameServer.getInt("robots");
+			
 			System.out.println(info);
 			System.out.println(g);
+			
 			// the list of fruits should be considered in your solution
 			Iterator<String> f_iter = game.getFruits().iterator();
-			while(f_iter.hasNext()) {System.out.println(f_iter.next());}	
+			while(f_iter.hasNext()) {System.out.println(f_iter.next());}
+			
 			int src_node = 0;  // arbitrary node, you should start at one of the fruits
 			
-			for(int a = 0;a<rs;a++) {
+			for(int a = 0;a<numRobots;a++) {
 				game.addRobot(src_node+a);
+				
+				Robot r=new Robot();
+				r.initFromJson(game.getRobots().get(a));
+				robots.add(r);
 			}
 		}
 		catch (JSONException e) {e.printStackTrace();}
 		
-		robots=new ArrayList<Robot>();
-		Robot robot=new Robot();
-		robot.initFromJson(game.getRobots().get(0));
-		robots.add(robot);
 		
-		fruits=new ArrayList<Fruit>();
+		
 		Fruit fruit=new Fruit();
 		fruit.initFromJson(game.getFruits().get(0));
 		fruits.add(fruit);
@@ -77,12 +85,12 @@ public class SimpleGameClient {
 		game.startGame();
 		
 		
-		MyGameGUI gui=new MyGameGUI(gg, robots, fruits);
+		MyGameGUI gui=new MyGameGUI(gameGraph, robots, fruits);
 		
 		
 		// should be a Thread!!!
 		while(game.isRunning()) {
-			moveRobots(game, gg);
+			moveRobots(game, gameGraph);
 		}
 		
 		
@@ -113,7 +121,6 @@ public class SimpleGameClient {
 					int dest = ttt.getInt("dest");
 					String pos = ttt.getString("pos");
 					robots.get(i).set_pos(pos);
-					System.out.println(robots.get(i).get_pos());
 
 					if(dest==-1) {	
 						dest = nextNode(gg, src);
