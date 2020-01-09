@@ -38,7 +38,7 @@ public class SimpleGameClient {
 		 test1();
 	}
 	public static void test1() {
-		int scenario_num = 2;
+		int scenario_num = 22;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
 		DGraph gg = new DGraph();
