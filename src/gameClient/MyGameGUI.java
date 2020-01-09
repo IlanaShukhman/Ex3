@@ -31,14 +31,29 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 
 	private DGraph graph;
+
 	private int width;
 	private int height;
 	private Range rx;
 	private Range ry;
-	private Integer mc;
+	double proportionX;
+	double proportionY;
+
 	private List<Robot> robots;
 	private List<Fruit> fruits;
-	
+
+
+
+
+	public static void main(String[] a) {
+		int scenario_num = 2;
+		game_service game = Game_Server.getServer(scenario_num);
+		String g = game.getGraph();
+		DGraph gameGraph = new DGraph();
+		gameGraph.init(g);
+
+		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
+	}
 
 	/**
 	 * Constructors
@@ -51,159 +66,178 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		width=1000;
 		height=600;
 		graph=g;
-		mc=graph.getMC();
-		rx=new Range(35.185,35.215);
-		ry=new Range(32.095, 32.113);
-		
+
+		rx=rangeX();
+		ry=rangeY();
+
+		proportionX=width/rx.get_length();
+		proportionY=height/ry.get_length();
+
+
 		this.robots=robots;
 		this.fruits=fruits;
 
+		StdDraw.setCanvasSize(width, height);
 		Thread t=new Thread(this);
 		t.start();
+
 	}//Graph_GUI
 
 	public void initGUI() {
-		//set the window
-		this.setSize(width,height);
-		this.setBackground(Color.WHITE);
-		this.setLayout(null);
-		this.setVisible(true);
-
 		this.addMouseListener(this);
-		repaint();
+		draw();
 	}
-	
-	
-	public void drawFunction() {
-		StdDraw.setCanvasSize(width,height);
-		StdDraw.setPenColor(Color.black);
-		
-//		double maxY = ry.get_max(), minY = ry.get_min();
-//		double maxX = rx.get_max(), minX = rx.get_min();
-		
-		Iterator<Integer> it = graph.get_Node_Hash().keySet().iterator();
-		while (it.hasNext()) {
-			Integer v = it.next();
+
+	private double updateX(double x) {
+		return (x-rx.get_min())*proportionX;
+	}
+
+	private double updateY(double y) {
+		return (y-ry.get_min())*proportionY;
+	}
+
+	private void drawVer() {
+		for(Integer v : graph.get_Node_Hash().keySet()) {
 			Point3D src=graph.get_Node_Hash().get(v).getLocation();
-			double x0=src.x();
-			double y0=src.y();
-			
-			StdDraw.circle(x0, y0, 5);
-			StdDraw.text(x0, y0+20, Integer.toString(graph.get_Node_Hash().get(v).getKey()));
-			
-			try {
-				Iterator<Integer> neighbors = graph.get_Edge_Hash().get(v).keySet().iterator();
-				while(neighbors.hasNext()) {
+			double x0=updateX(src.x());
+			double y0=updateY(src.y());
 
-					Integer u=neighbors.next();
+			StdDraw.circle(x0, y0, 2);
+			StdDraw.text(x0, y0+15, Integer.toString(graph.get_Node_Hash().get(v).getKey()));
 
-					Point3D dest=graph.get_Node_Hash().get(u).getLocation();
-					
-					double x1=dest.x();
-					double y1=dest.y();
+		}
+	}
 
+	private void drawEdges() {
+		for( Integer v : graph.get_Edge_Hash().keySet() ) {
+			for ( Integer u : graph.get_Edge_Hash().get(v).keySet() ) {
+				double x0=updateX(graph.get_Node_Hash().get(v).getLocation().x());
+				double y0=updateY(graph.get_Node_Hash().get(v).getLocation().y());
 
-					StdDraw.line(x0, y0, x1, y1);
-					StdDraw.text(x1, y1+20, Integer.toString(graph.get_Node_Hash().get(u).getKey()));
+				double x1=updateX(graph.get_Node_Hash().get(u).getLocation().x());
+				double y1=updateY(graph.get_Node_Hash().get(u).getLocation().y());
 
-					//add the weight of the edge
-					double weight=graph.get_Edge_Hash().get(v).get(u).getWeight();
-					weight = (double) ((int) (weight * 10)) / (10);
-					StdDraw.text(x1*3/4 + x0*1/4, y1*3/4 + y0*1/4, Double.toString(weight));
+				StdDraw.line(x0, y0, x1, y1);
+				StdDraw.text(x1, y1+15, Integer.toString(graph.get_Node_Hash().get(u).getKey()));
 
+				//add the weight of the edge
+				double weight=graph.get_Edge_Hash().get(v).get(u).getWeight();
+				weight = (double) ((int) (weight * 10)) / (10);
 
-				}//Inner while
-			}//try
-			catch(Exception e){//don't do anything
-			}//catch
-			
-			//draw the position of the robots and fruits
-			for(Robot robot : robots) {
-				double xr=robot.get_pos().x();
-				double yr=robot.get_pos().y();
-		
-				StdDraw.circle(xr, yr, 10);
+				StdDraw.text(x1*3/4 + x0*1/4, y1*3/4 + y0*1/4, Double.toString(weight));
 			}
-			
-			
-			
+		}
+	}
+
+	private void updateRobots() {
+		Color[] color= {Color.blue,Color.darkGray,Color.green,Color.magenta,Color.pink};
+		int i=0;
+		for(Robot robot : robots) {
+			StdDraw.setPenColor(color[i]);
+			double xr=updateX(robot.get_pos().x());
+			double yr=updateY(robot.get_pos().y());
+
+			StdDraw.filledCircle(xr, yr, 10);
+			i++;
+		}
+	}
+
+	private void updateFruits() {
+		for(Fruit fruit: fruits) {
+
+			double xr=updateX(fruit.getLocation().x());
+			double yr=updateY(fruit.getLocation().y());
+
+
+
+			if(fruit.getType()==-1) {
+				StdDraw.picture(xr, yr, "banana.png", 25, 25);
+			}
+			else if(fruit.getType()==1) {
+				StdDraw.picture(xr, yr, "apple.png", 25, 25);
+			}
 		}
 
-		
-		
 	}
 
-	public void paint(Graphics g){
-		
-		super.paint(g);
-
-		double proportionX=width/rx.get_length();
-		double proportionY=(0-height)/ry.get_length();
-		g.setColor(Color.BLACK);
 
 
+	public void draw() {
+		StdDraw.enableDoubleBuffering();
+		StdDraw.clear();
 
-		Iterator<Integer> it = graph.get_Node_Hash().keySet().iterator();
-		while (it.hasNext()) {
-			Integer v = it.next();
-			Point3D src=graph.get_Node_Hash().get(v).getLocation();
-			int x0= (int) ((src.x()-rx.get_min())*proportionX);
-			int y0=(int) ((src.y()-ry.get_max())*proportionY);
+		StdDraw.setXscale(0,1000);
+		StdDraw.setYscale(0,600);
 
-			//draw all the nodes
+		StdDraw.setPenColor(Color.BLACK);
 
+		drawVer();
+		drawEdges();
+		updateRobots();
+		updateFruits();
 
-			g.fillOval(x0, y0, 5, 5);
-			g.drawString(Integer.toString(graph.get_Node_Hash().get(v).getKey()), x0, y0+20);
+		StdDraw.show();
 
-
-			//it is in try and catch because not all the nodes are in the edge list
-			//so it might throw an error, we would like to avoid it
-			try {
-				Iterator<Integer> neighbors = graph.get_Edge_Hash().get(v).keySet().iterator();
-				while(neighbors.hasNext()) {
-
-					Integer u=neighbors.next();
-
-					Point3D dest=graph.get_Node_Hash().get(u).getLocation();
-					int x1=(int) ((dest.x()-rx.get_min())*proportionX);
-					int y1=(int) ((dest.y()-ry.get_max())*proportionY);
-
-
-					g.drawLine(x0, y0, x1, y1);
-					g.drawString(Integer.toString(graph.get_Node_Hash().get(u).getKey()), x1, y1+20);
-
-					//add the weight of the edge
-					double weight=graph.get_Edge_Hash().get(v).get(u).getWeight();
-					weight = (double) ((int) (weight * 10)) / (10);
-					g.drawString(Double.toString(weight), x1*3/4 + x0*1/4, y1*3/4 + y0*1/4);
-
-
-				}//Inner while
-			}//try
-			catch(Exception e){//don't do anything
-			}//catch
-			
-			
-			//draw the position of the robots and fruits
-			for(Robot robot : robots) {
-				double xr=(robot.get_pos().x()-rx.get_min())*proportionX;
-				double yr=(robot.get_pos().y()-ry.get_max())*proportionY;
-		
-				g.fillOval((int)xr, (int)yr, 10, 10);
-			}
-			
-//			for(Fruit fruit : fruits) {
-//				double xr=fruit.getLocation().x()-rx.get_min()*proportionX;
-//				double yr=fruit.getLocation().y()-ry.get_max()*proportionY;
-//			}
-
-		}//while
 	}
-	
-	public Integer getMC() {
-		return this.mc;
-	}
+
+	/**
+	 * Finding the limits of x coordinate for Screen creator
+	 * @return
+	 */
+	private Range rangeX() {
+		double max=Integer.MIN_VALUE;
+		double min=Integer.MAX_VALUE;
+
+		//default range for an empty graph
+		if(graph.get_Node_Hash().isEmpty()) {
+			Range rx=new Range(35.185,35.215);
+			return rx;
+		}
+
+		for(Integer node : graph.get_Node_Hash().keySet()) {
+			if(graph.get_Node_Hash().get(node).getLocation().x()>max)
+				max=graph.get_Node_Hash().get(node).getLocation().x();
+
+			if(graph.get_Node_Hash().get(node).getLocation().x()<min)
+				min=graph.get_Node_Hash().get(node).getLocation().x();
+
+		}//for each
+
+		max+=0.001;
+		min-=0.001;
+		Range rx=new Range(min,max);
+		return rx;
+	}//RangeX
+
+
+	/**
+	 * Finding the limits of y coordinate for Screen creator
+	 * @return
+	 */
+	private Range rangeY() {
+		double max=Integer.MIN_VALUE;
+		double min=Integer.MAX_VALUE;
+
+		//default range for an empty graph
+		if(graph.get_Node_Hash().isEmpty()) {
+			Range rx=new Range(32.095, 32.113);
+			return rx;
+		}
+
+		for(Integer node : graph.get_Node_Hash().keySet()) {
+			if(graph.get_Node_Hash().get(node).getLocation().y()>max)
+				max=graph.get_Node_Hash().get(node).getLocation().y();
+
+			if(graph.get_Node_Hash().get(node).getLocation().y()<min)
+				min=graph.get_Node_Hash().get(node).getLocation().y();
+		}//for each
+
+		max+=0.001;
+		min-=0.001;
+		Range ry=new Range(min,max);
+		return ry;
+	}//rangeY
+
 
 	@Override
 	public void run() {
@@ -211,7 +245,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		while(true)
 		{
 			synchronized (this) {
-				repaint();
+				draw();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -220,7 +254,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			}
 		}//while
 	}//run
-	
+
 
 	@Override
 	public void mouseClicked(MouseEvent e) {

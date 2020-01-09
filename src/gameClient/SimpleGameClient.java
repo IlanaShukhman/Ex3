@@ -38,7 +38,7 @@ public class SimpleGameClient {
 		 test1();
 	}
 	public static void test1() {
-		int scenario_num = 22;
+		int scenario_num = 14;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
 		DGraph gameGraph = new DGraph();
@@ -46,6 +46,7 @@ public class SimpleGameClient {
 		
 		robots=new ArrayList<Robot>();
 		fruits=new ArrayList<Fruit>();
+		
 		
 		String info = game.toString();
 		JSONObject line;
@@ -72,14 +73,19 @@ public class SimpleGameClient {
 				r.initFromJson(game.getRobots().get(a));
 				robots.add(r);
 			}
+			
+			int numFruits = GameServer.getInt("fruits");
+			for (int i = 0; i < numFruits; i++) {
+				Fruit fruit=new Fruit();
+				fruit.initFromJson(game.getFruits().get(i));
+				fruits.add(fruit);
+				
+			}
 		}
 		catch (JSONException e) {e.printStackTrace();}
 		
 		
 		
-		Fruit fruit=new Fruit();
-		fruit.initFromJson(game.getFruits().get(0));
-		fruits.add(fruit);
 		
 		
 		game.startGame();
