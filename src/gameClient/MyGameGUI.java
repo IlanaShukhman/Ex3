@@ -25,6 +25,7 @@ import dataStructure.graph;
 import gui.Graph_GUI;
 import utils.Point3D;
 import utils.Range;
+import utils.StdDraw;
 
 public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,Runnable{
 
@@ -70,6 +71,66 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 		this.addMouseListener(this);
 		repaint();
+	}
+	
+	
+	public void drawFunction() {
+		StdDraw.setCanvasSize(width,height);
+		StdDraw.setPenColor(Color.black);
+		
+//		double maxY = ry.get_max(), minY = ry.get_min();
+//		double maxX = rx.get_max(), minX = rx.get_min();
+		
+		Iterator<Integer> it = graph.get_Node_Hash().keySet().iterator();
+		while (it.hasNext()) {
+			Integer v = it.next();
+			Point3D src=graph.get_Node_Hash().get(v).getLocation();
+			double x0=src.x();
+			double y0=src.y();
+			
+			StdDraw.circle(x0, y0, 5);
+			StdDraw.text(x0, y0+20, Integer.toString(graph.get_Node_Hash().get(v).getKey()));
+			
+			try {
+				Iterator<Integer> neighbors = graph.get_Edge_Hash().get(v).keySet().iterator();
+				while(neighbors.hasNext()) {
+
+					Integer u=neighbors.next();
+
+					Point3D dest=graph.get_Node_Hash().get(u).getLocation();
+					
+					double x1=dest.x();
+					double y1=dest.y();
+
+
+					StdDraw.line(x0, y0, x1, y1);
+					StdDraw.text(x1, y1+20, Integer.toString(graph.get_Node_Hash().get(u).getKey()));
+
+					//add the weight of the edge
+					double weight=graph.get_Edge_Hash().get(v).get(u).getWeight();
+					weight = (double) ((int) (weight * 10)) / (10);
+					StdDraw.text(x1*3/4 + x0*1/4, y1*3/4 + y0*1/4, Double.toString(weight));
+
+
+				}//Inner while
+			}//try
+			catch(Exception e){//don't do anything
+			}//catch
+			
+			//draw the position of the robots and fruits
+			for(Robot robot : robots) {
+				double xr=robot.get_pos().x();
+				double yr=robot.get_pos().y();
+		
+				StdDraw.circle(xr, yr, 10);
+			}
+			
+			
+			
+		}
+
+		
+		
 	}
 
 	public void paint(Graphics g){
