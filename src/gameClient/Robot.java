@@ -79,6 +79,7 @@ public class Robot {
 	}
 
 
+	
 	public void set_pos(String _pos) {
 		int count=0;
 		String _x = "";

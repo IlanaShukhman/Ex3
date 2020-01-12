@@ -16,9 +16,11 @@ public class Fruit {
     private int _type;
     
 
-    public Fruit() {
+   
+	public Fruit() {
+		
     }
-
+	
     public Fruit(double v, Point3D p, int t) {
         this._value = v;
         this._pos = new Point3D(p);
@@ -33,7 +35,13 @@ public class Fruit {
         return new Point3D(this._pos);
     }
 
-   
+    public void set_pos(Point3D _pos) {
+		this._pos = _pos;
+	}
+
+    public double getValue() {
+        return this._value;
+    }
 
     public void initFromJson(String json)
     {
@@ -52,10 +60,7 @@ public class Fruit {
 		}
     }//initFromJson
 
-
-    public double getValue() {
-        return this._value;
-    }
+   
     
     public String toJSON1() {
         String ans = "{\"Fruit\":{\"value\":10,\"type\":1,\"pos\":\"35.187615443099276,32.103800431932775,0.0\"}}";

@@ -13,6 +13,7 @@ import Server.game_service;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.graph;
+import utils.Point3D;
 /**
  * This class represents a simple example for using the GameServer API:
  * the main file performs the following tasks:
@@ -33,73 +34,70 @@ import dataStructure.graph;
 public class SimpleGameClient {
 	private static List<Robot> robots;
 	private static List<Fruit> fruits;
-	
+
 	public static void main(String[] a) {
-		 test1();
+		test1();
 	}
 	public static void test1() {
-		int scenario_num = 22;
+		//Choose scenario num
+		int scenario_num = 13;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
+		//Create Graph
 		String g = game.getGraph();
 		DGraph gameGraph = new DGraph();
 		gameGraph.init(g);
-		
+		//Create the lists of robots and fruits
 		robots=new ArrayList<Robot>();
 		fruits=new ArrayList<Fruit>();
-		
+		//Game Server information such as:fruites,moves,grade,robots,graph,data
 		String info = game.toString();
-		JSONObject line;
-		
-		try {
-			line = new JSONObject(info);
-			JSONObject GameServer = line.getJSONObject("GameServer");
-			
-			int numRobots = GameServer.getInt("robots");
-			
+
+
+			GameServer gameServer=new GameServer();
+			gameServer.initFromJson(info);
+			int numRobots = gameServer.get_robots_number();
+
 			System.out.println(info);
 			System.out.println(g);
-			
+
 			// the list of fruits should be considered in your solution
 			Iterator<String> f_iter = game.getFruits().iterator();
 			while(f_iter.hasNext()) {System.out.println(f_iter.next());}
-			
+
 			int src_node = 0;  // arbitrary node, you should start at one of the fruits
-			
+
 			for(int a = 0;a<numRobots;a++) {
 				game.addRobot(src_node+a);
-				
+
 				Robot r=new Robot();
 				r.initFromJson(game.getRobots().get(a));
 				robots.add(r);
-			}
-		}
-		catch (JSONException e) {e.printStackTrace();}
-		
-		
-		
-		Fruit fruit=new Fruit();
-		fruit.initFromJson(game.getFruits().get(0));
-		fruits.add(fruit);
-		
-		
+			}//for
+
+			int numFruits = gameServer.get_fruits_number();
+			for (int i = 0; i < numFruits; i++) {
+				Fruit fruit=new Fruit();
+				fruit.initFromJson(game.getFruits().get(i));
+				fruits.add(fruit);
+
+			}//for
+			
 		game.startGame();
-		
-		
+
 		MyGameGUI gui=new MyGameGUI(gameGraph, robots, fruits);
-		
 		
 		// should be a Thread!!!
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
 		}
-		
-		
-		
+
+
+
 		String results = game.toString();
 		System.out.println("Game Over: "+results);
 	}
-	
-	
+
+
 	/** 
 	 * Moves each of the robots along the edge, 
 	 * in case the robot is on a node the next destination (next edge) is chosen (randomly).
@@ -113,27 +111,47 @@ public class SimpleGameClient {
 			long t = game.timeToEnd();
 			for(int i=0;i<log.size();i++) {
 				String robot_json = log.get(i);
-				try {
-					JSONObject line = new JSONObject(robot_json);
-					JSONObject ttt = line.getJSONObject("Robot");
-					int rid = ttt.getInt("id");
-					int src = ttt.getInt("src");
-					int dest = ttt.getInt("dest");
-					String pos = ttt.getString("pos");
+					Robot robot=new Robot();
+					robot.initFromJson(robot_json);
+					int rid = robot.get_id();
+					int src = robot.get_src();
+					int dest = robot.get_dest();
+					Point3D pos = robot.get_pos();
 					robots.get(i).set_pos(pos);
-
 					if(dest==-1) {	
 						dest = nextNode(gg, src);
+						stopAndThink();
 						game.chooseNextEdge(rid, dest);
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println(ttt);
-						
-					}
-				} 
-				catch (JSONException e) {e.printStackTrace();}
-			}
+						System.out.println(robot.toJSON());
+					}//if
+				updateFruites(game);
+			}//for
+		}//if
+	}//moveRobots
+	/**
+	 * Simple Thread stop for illustrate thinking of robot direction
+	 */
+	private static void stopAndThink() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
+	/**
+	 * Extract information of the fruites from server and Update them
+	 * @param game
+	 */
+	private static void updateFruites(game_service game) {
+		List<String> fruitInformation=game.getFruits();
+		for (int i = 0; i < fruitInformation.size(); i++) {
+			Fruit fruit=new Fruit();
+			fruit.initFromJson(fruitInformation.get(i));
+			fruits.get(i).set_pos(fruit.getLocation());
+		}//for
+	}//updateFruites
 	/**
 	 * a very simple random walk implementation!
 	 * @param g
@@ -150,8 +168,8 @@ public class SimpleGameClient {
 			int i=0;
 			while(i<r) {itr.next();i++;}
 			ans = itr.next().getDest();
-		}
+		}//if
 		return ans;
-	}
+	}//nextNode
 
 }
