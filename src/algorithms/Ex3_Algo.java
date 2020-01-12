@@ -16,7 +16,7 @@ public class Ex3_Algo {
 	 * @param fruit
 	 * @return
 	 */
-	public edge_data fetchFruitToEdge(Fruit fruit,DGraph g)
+	public static edge_data fetchFruitToEdge(Fruit fruit,DGraph g)
 	{
 		Point3D mid=fruit.getLocation();
 		Collection<node_data> nodes=g.getV();
@@ -34,9 +34,9 @@ public class Ex3_Algo {
 		return null;
 	}//fetchFruitToEdge
 	
-	private boolean fruitOnEdge(Point3D start,Point3D end,Point3D mid)
+	static boolean fruitOnEdge(Point3D start,Point3D end,Point3D mid)
 	{
-		return (start.distance3D(mid)+mid.distance3D(end)<=start.distance3D(end)+EPS);
+		return (start.distance3D(mid)+mid.distance3D(end)<=start.distance3D(end)+0.0001);
 	}//fruitOnEdge
 	
 }

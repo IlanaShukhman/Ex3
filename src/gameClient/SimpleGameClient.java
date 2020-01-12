@@ -40,7 +40,7 @@ public class SimpleGameClient {
 	}
 	public static void test1() {
 		//Choose scenario num
-		int scenario_num = 23;
+		int scenario_num = 0;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		//Create Graph
 		String g = game.getGraph();
@@ -53,38 +53,41 @@ public class SimpleGameClient {
 		String info = game.toString();
 
 
-			GameServer gameServer=new GameServer();
-			gameServer.initFromJson(info);
-			int numRobots = gameServer.get_robots_number();
+		GameServer gameServer=new GameServer();
+		gameServer.initFromJson(info);
+		int numRobots = gameServer.get_robots_number();
 
-			System.out.println(info);
-			System.out.println(g);
+		System.out.println(info);
+		System.out.println(g);
 
-			// the list of fruits should be considered in your solution
-			Iterator<String> f_iter = game.getFruits().iterator();
-			while(f_iter.hasNext()) {System.out.println(f_iter.next());}
+		// the list of fruits should be considered in your solution
+		Iterator<String> f_iter = game.getFruits().iterator();
+		while(f_iter.hasNext()) {System.out.println(f_iter.next());}
 
-			int src_node = 0;  // arbitrary node, you should start at one of the fruits
+		int src_node = 0;  // arbitrary node, you should start at one of the fruits
 
-			for(int a = 0;a<numRobots;a++) {
-				game.addRobot(src_node+a);
+		for(int a = 0;a<numRobots;a++) {
+			game.addRobot(src_node+a);
 
-				Robot r=new Robot();
-				r.initFromJson(game.getRobots().get(a));
-				robots.add(r);
-			}//for
+			Robot r=new Robot();
+			r.initFromJson(game.getRobots().get(a));
+			robots.add(r);
+		}//for
 
-			int numFruits = gameServer.get_fruits_number();
-			for (int i = 0; i < numFruits; i++) {
-				Fruit fruit=new Fruit();
-				fruit.initFromJson(game.getFruits().get(i));
-				fruits.add(fruit);
+		int numFruits = gameServer.get_fruits_number();
+		for (int i = 0; i < numFruits; i++) {
+			Fruit fruit=new Fruit();
+			fruit.initFromJson(game.getFruits().get(i));
+			fruits.add(fruit);
 
-			}//for
-			
+		}//for
+		
+		
+		MyGameGUI gui=new MyGameGUI(gameGraph, robots, fruits);
+
+		
 		game.startGame();
 
-		MyGameGUI gui=new MyGameGUI(gameGraph, robots, fruits);
 		
 		// should be a Thread!!!
 		while(game.isRunning()) {
@@ -111,24 +114,24 @@ public class SimpleGameClient {
 			long t = game.timeToEnd();
 			for(int i=0;i<log.size();i++) {
 				String robot_json = log.get(i);
-					Robot robot=new Robot();
-					robot.initFromJson(robot_json);
-					int rid = robot.get_id();
-					int src = robot.get_src();
-					int dest = robot.get_dest();
-					Point3D pos = robot.get_pos();
-					robots.get(i).set_pos(pos);
-					if(dest==-1) {	
-						dest = nextNode(gg, src);
-						game.chooseNextEdge(rid, dest);
-						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println(robot.toJSON());
-					}//if
+				Robot robot=new Robot();
+				robot.initFromJson(robot_json);
+				int rid = robot.get_id();
+				int src = robot.get_src();
+				int dest = robot.get_dest();
+				Point3D pos = robot.get_pos();
+				robots.get(i).set_pos(pos);
+				if(dest==-1) {	
+					dest = nextNode(gg, src);
+					game.chooseNextEdge(rid, dest);
+					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+					System.out.println(robot.toJSON());
+				}//if
 				updateFruites(game);
 			}//for
 		}//if
 	}//moveRobots
-	
+
 	/**
 	 * Extract information of the fruites from server and Update them
 	 * @param game
@@ -141,6 +144,8 @@ public class SimpleGameClient {
 			fruits.get(i).set_pos(fruit.getLocation());
 		}//for
 	}//updateFruites
+
+
 	/**
 	 * a very simple random walk implementation!
 	 * @param g

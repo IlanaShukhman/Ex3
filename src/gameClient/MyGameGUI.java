@@ -42,18 +42,6 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	private List<Robot> robots;
 	private List<Fruit> fruits;
 
-
-
-
-	public static void main(String[] a) {
-		int scenario_num = 2;
-		game_service game = Game_Server.getServer(scenario_num);
-		String g = game.getGraph();
-		DGraph gameGraph = new DGraph();
-		gameGraph.init(g);
-		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
-	}
-
 	/**
 	 * Constructors
 	 */
@@ -293,6 +281,16 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	}
 
+
+
+	public static void main(String[] a) {
+		int scenario_num = 2;
+		game_service game = Game_Server.getServer(scenario_num);
+		String g = game.getGraph();
+		DGraph gameGraph = new DGraph();
+		gameGraph.init(g);
+		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
+	}
 
 }
 
