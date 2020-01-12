@@ -40,7 +40,7 @@ public class SimpleGameClient {
 	}
 	public static void test1() {
 		//Choose scenario num
-		int scenario_num = 13;
+		int scenario_num = 23;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		//Create Graph
 		String g = game.getGraph();
@@ -120,7 +120,6 @@ public class SimpleGameClient {
 					robots.get(i).set_pos(pos);
 					if(dest==-1) {	
 						dest = nextNode(gg, src);
-						stopAndThink();
 						game.chooseNextEdge(rid, dest);
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println(robot.toJSON());
@@ -129,17 +128,7 @@ public class SimpleGameClient {
 			}//for
 		}//if
 	}//moveRobots
-	/**
-	 * Simple Thread stop for illustrate thinking of robot direction
-	 */
-	private static void stopAndThink() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 	/**
 	 * Extract information of the fruites from server and Update them
 	 * @param game
