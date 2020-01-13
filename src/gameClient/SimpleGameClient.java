@@ -13,7 +13,9 @@ import Server.game_service;
 import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.graph;
+import dataStructure.node_data;
 import utils.Point3D;
+import algorithms.*;;
 /**
  * This class represents a simple example for using the GameServer API:
  * the main file performs the following tasks:
@@ -40,47 +42,45 @@ public class SimpleGameClient {
 	}
 	public static void test1() {
 		//Choose scenario num
-		int scenario_num = 0;
+		int scenario_num =5;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		//Create Graph
 		String g = game.getGraph();
 		DGraph gameGraph = new DGraph();
 		gameGraph.init(g);
+		
 		//Create the lists of robots and fruits
 		robots=new ArrayList<Robot>();
 		fruits=new ArrayList<Fruit>();
+		
 		//Game Server information such as:fruites,moves,grade,robots,graph,data
 		String info = game.toString();
-
-
 		GameServer gameServer=new GameServer();
 		gameServer.initFromJson(info);
 		int numRobots = gameServer.get_robots_number();
 
-		System.out.println(info);
+		System.out.println(gameServer);
 		System.out.println(g);
 
-		// the list of fruits should be considered in your solution
-		Iterator<String> f_iter = game.getFruits().iterator();
-		while(f_iter.hasNext()) {System.out.println(f_iter.next());}
-
+		// update and displaying the fruites
+		int numFruits = gameServer.get_fruits_number();
+		for (int i = 0; i < numFruits; i++) {
+			Fruit fruit=new Fruit();
+			fruit.initFromJson(game.getFruits().get(i));
+			System.out.println(game.getFruits().get(i));
+			fruits.add(fruit);
+		}//for
+		
 		int src_node = 0;  // arbitrary node, you should start at one of the fruits
 
 		for(int a = 0;a<numRobots;a++) {
 			game.addRobot(src_node+a);
-
 			Robot r=new Robot();
 			r.initFromJson(game.getRobots().get(a));
 			robots.add(r);
 		}//for
 
-		int numFruits = gameServer.get_fruits_number();
-		for (int i = 0; i < numFruits; i++) {
-			Fruit fruit=new Fruit();
-			fruit.initFromJson(game.getFruits().get(i));
-			fruits.add(fruit);
-
-		}//for
+		
 		
 		
 		MyGameGUI gui=new MyGameGUI(gameGraph, robots, fruits);
@@ -121,8 +121,10 @@ public class SimpleGameClient {
 				int dest = robot.get_dest();
 				Point3D pos = robot.get_pos();
 				robots.get(i).set_pos(pos);
+//				List<Integer> path=nodesPath(gg, src);
 				if(dest==-1) {	
-					dest = nextNode(gg, src);
+					dest = nextNode2(gg, src);
+					//dest=path.get(i);
 					game.chooseNextEdge(rid, dest);
 					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 					System.out.println(robot.toJSON());
@@ -133,7 +135,7 @@ public class SimpleGameClient {
 	}//moveRobots
 
 	/**
-	 * Extract information of the fruites from server and Update them
+	 * Extract information of the fruites from server in Json language and Update them
 	 * @param game
 	 */
 	private static void updateFruites(game_service game) {
@@ -166,4 +168,61 @@ public class SimpleGameClient {
 		return ans;
 	}//nextNode
 
+	private static List<Integer> nodesPath(graph g,int src)
+	{
+		//Finding the close fruit
+		Fruit close_fruit=choose_Close_Fruites(g.getNode(src).getLocation(),fruits);
+		//Fetching edge to fruit
+		Ex3_Algo algo=new Ex3_Algo();
+		edge_data edge_close_fruit=algo.fetchFruitToEdge(close_fruit, g);
+		Graph_Algo g_Algo=new Graph_Algo(g);
+		//Calculating the shortest path between src and node_src
+		List<node_data> path=g_Algo.shortestPath(src, edge_close_fruit.getSrc());
+		//Convert the nodes path to Keys path
+		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
+		//Adding the end of the path
+		path_key.add(edge_close_fruit.getDest());
+		return path_key;
+		
+	}//path_key
+	
+	private static int nextNode2(graph g, int src) {
+		//Finding the close fruit
+				Fruit close_fruit=choose_Close_Fruites(g.getNode(src).getLocation(),fruits);
+				//System.out.println("Close Fruit "+close_fruit);
+				//Fetching edge to fruit
+				Ex3_Algo algo=new Ex3_Algo();
+				edge_data edge_close_fruit=algo.fetchFruitToEdge(close_fruit, g);
+				//System.out.println("Fetch edge "+edge_close_fruit);
+				Graph_Algo g_Algo=new Graph_Algo(g);
+				//Calculating the shortest path between src and node_src
+				List<node_data> path=g_Algo.shortestPath(src, edge_close_fruit.getSrc());
+				//Convert the nodes path to Keys path
+				List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
+				//Adding the end of the path
+				if(path_key.isEmpty())
+					return nextNode(g, src);
+				path_key.add(edge_close_fruit.getDest());
+				return path_key.get(1);
+	}//nextNode2
+	/**
+	 * Choosing the closest fruit by distance
+	 * @param src - the src node of robot
+	 * @param fruits - all the fruites
+	 * @return Fruit - the close one
+	 */
+	private static Fruit choose_Close_Fruites(Point3D src, List<Fruit> fruits) {
+		double min=Double.MAX_VALUE;
+		Fruit f=new Fruit();
+		for (Fruit fruit : fruits) {
+			Point3D dest=fruit.getLocation();
+			double distance=src.distance3D(dest);
+			if(min>distance)
+			{
+				min=distance;
+				f=fruit;
+			}//if
+		}//for
+		return f;
+	}//nodePath
 }

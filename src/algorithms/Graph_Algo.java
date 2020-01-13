@@ -488,7 +488,7 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 	 * @param path - The shortest path from the end
 	 * @return The shortest path from the begining
 	 */
-	public ArrayList<node_data> Reverse(List<node_data> path)
+	private ArrayList<node_data> Reverse(List<node_data> path)
 	{
 		ArrayList<node_data> reverse=new ArrayList<node_data>();
 		for (int i = path.size()-1; i >=0; i--) {
@@ -499,7 +499,7 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 	/**
 	 * Printing the List path
 	 */
-	public void printPath(List<node_data> path,double len)
+	private void printPath(List<node_data> path,double len)
 	{
 		for (node_data node : path) {
 			System.out.print("->"+node.getKey());
@@ -553,7 +553,7 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 	 * @param nodes
 	 * @return Integer key list of given nodes
 	 */
-	private List<Integer> NodeToKeyConverter(List<node_data> nodes)
+	public List<Integer> NodeToKeyConverter(List<node_data> nodes)
 	{
 		List<Integer> keys=new ArrayList<Integer>();
 		for (node_data node : nodes) {

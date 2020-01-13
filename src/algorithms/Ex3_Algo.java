@@ -5,6 +5,7 @@ import java.util.List;
 
 import dataStructure.DGraph;
 import dataStructure.edge_data;
+import dataStructure.graph;
 import dataStructure.node_data;
 import gameClient.Fruit;
 import utils.Point3D;
@@ -16,7 +17,7 @@ public class Ex3_Algo {
 	 * @param fruit
 	 * @return
 	 */
-	public static edge_data fetchFruitToEdge(Fruit fruit,DGraph g)
+	public edge_data fetchFruitToEdge(Fruit fruit,graph g)
 	{
 		Point3D mid=fruit.getLocation();
 		Collection<node_data> nodes=g.getV();
@@ -34,7 +35,7 @@ public class Ex3_Algo {
 		return null;
 	}//fetchFruitToEdge
 	
-	static boolean fruitOnEdge(Point3D start,Point3D end,Point3D mid)
+	private boolean fruitOnEdge(Point3D start,Point3D end,Point3D mid)
 	{
 		return (start.distance3D(mid)+mid.distance3D(end)<=start.distance3D(end)+0.0001);
 	}//fruitOnEdge
