@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +43,13 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	private List<Robot> robots;
 	private List<Fruit> fruits;
 
+	//this is used to determine if it is automatic or manual
+	private int state;
+
+	private Robot selectedRobot;
+	private int selectedNode;
+
+
 	/**
 	 * Constructors
 	 */
@@ -60,20 +68,35 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		proportionX=width/rx.get_length();
 		proportionY=height/ry.get_length();
 
-
 		this.robots=robots;
 		this.fruits=fruits;
 
-		StdDraw.setCanvasSize(width, height);
+		StdDraw.setCanvasSize(width, height);	
+
+		state=JOptionPane.showConfirmDialog(this, "Manual?");
+		selectedNode=-1;
+		selectedRobot=null;
+
 		Thread t=new Thread(this);
 		t.start();
 
 	}//Graph_GUI
 
 	public void initGUI() {
-		this.addMouseListener(this);
 		draw();
 	}//initGui
+
+	public int getState() {
+		return this.state;
+	}
+
+	public int getSelectedNode() {
+		return this.selectedNode;
+	}
+
+	public Robot getSelectedRobot() {
+		return this.selectedRobot;
+	}
 
 	private double updateX(double x) {
 		return (x-rx.get_min())*proportionX;
@@ -90,6 +113,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			double y0=updateY(src.y());
 
 			StdDraw.filledCircle(x0, y0, 5);
+			if(v.equals(selectedNode))
+				StdDraw.circle(x0,y0,7);
+
 			StdDraw.text(x0, y0+15, Integer.toString(graph.get_Node_Hash().get(v).getKey()));
 
 		}//for
@@ -105,8 +131,8 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 				double y1=updateY(graph.get_Node_Hash().get(u).getLocation().y());
 
 				StdDraw.line(x0, y0, x1, y1);
-//				drawPolygon();
-//				StdDraw.filledPolygon(x, y);
+				//				drawPolygon();
+				//				StdDraw.filledPolygon(x, y);
 				StdDraw.text(x1, y1+15, Integer.toString(graph.get_Node_Hash().get(u).getKey()));
 
 				//add the weight of the edge
@@ -120,7 +146,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	private void drawPolygon() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void updateRobots() {
@@ -132,6 +158,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			double yr=updateY(robot.get_pos().y());
 
 			StdDraw.filledCircle(xr, yr, 10);
+			if(robot.equals(selectedRobot))
+				StdDraw.circle(xr,yr,12);
+
 			i++;
 		}
 	}
@@ -240,6 +269,8 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		{
 			synchronized (this) {
 				draw();
+				if(StdDraw.isMousePressed())
+					pressed();
 			}
 		}//while
 	}//run
@@ -251,10 +282,59 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	}
 
+	private boolean isClose(Point3D node1, Point3D node2) {
+		if(node1.distance2D(node2)<0.0005)
+			return true;
+		return false;
+	}
+	
+	/**
+	 * This method converts from pixels to map-coordinates
+	 * @param x
+	 * @return
+	 */
+	private double reUpdateX(double x) {
+		return (x/proportionX)+rx.get_min();
+	}
+	
+	/**
+	 * This method converts from pixels to map-coordinates
+	 * @param y
+	 * @return
+	 */
+	private double reUpdateY(double y) {
+		return (y/proportionY)+ry.get_min();
+	}
+
+	private void pressed() {
+		
+		if(state==0) {//means it is manual
+			double x= reUpdateX(StdDraw.mouseX());
+			double y= reUpdateY(StdDraw.mouseY());
+			Point3D p=new Point3D(x,y);
+			for(Integer node : graph.get_Node_Hash().keySet()) {
+				Point3D loc=graph.get_Node_Hash().get(node).getLocation();
+				if(selectedRobot!=null && isClose(p,loc) ) {
+					selectedNode=node;
+				}
+			}
+
+			//click on the robot.
+			for (int i = 0; i < robots.size(); i++) {
+				Point3D loc=robots.get(i).get_pos();
+				if(isClose(p,loc)) {
+					selectedRobot=robots.get(i);
+				}
+			}
+
+		}
+	}
+
+
+
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override

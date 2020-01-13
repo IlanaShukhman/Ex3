@@ -37,22 +37,25 @@ public class SimpleGameClient {
 	private static List<Robot> robots;
 	private static List<Fruit> fruits;
 
+	private static MyGameGUI gui;
+	private static DGraph gameGraph;
+
 	public static void main(String[] a) {
 		test1();
 	}
 	public static void test1() {
 		//Choose scenario num
-		int scenario_num =5;
+		int scenario_num =19;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		//Create Graph
 		String g = game.getGraph();
-		DGraph gameGraph = new DGraph();
+		gameGraph = new DGraph();
 		gameGraph.init(g);
-		
+
 		//Create the lists of robots and fruits
 		robots=new ArrayList<Robot>();
 		fruits=new ArrayList<Fruit>();
-		
+
 		//Game Server information such as:fruites,moves,grade,robots,graph,data
 		String info = game.toString();
 		GameServer gameServer=new GameServer();
@@ -67,10 +70,9 @@ public class SimpleGameClient {
 		for (int i = 0; i < numFruits; i++) {
 			Fruit fruit=new Fruit();
 			fruit.initFromJson(game.getFruits().get(i));
-			System.out.println(game.getFruits().get(i));
 			fruits.add(fruit);
 		}//for
-		
+
 		int src_node = 0;  // arbitrary node, you should start at one of the fruits
 
 		for(int a = 0;a<numRobots;a++) {
@@ -79,16 +81,10 @@ public class SimpleGameClient {
 			r.initFromJson(game.getRobots().get(a));
 			robots.add(r);
 		}//for
-
-		
-		
-		
-		MyGameGUI gui=new MyGameGUI(gameGraph, robots, fruits);
-
-		
+		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
 
-		
+
 		// should be a Thread!!!
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
@@ -105,10 +101,10 @@ public class SimpleGameClient {
 	 * Moves each of the robots along the edge, 
 	 * in case the robot is on a node the next destination (next edge) is chosen (randomly).
 	 * @param game
-	 * @param gg
+	 * @param graph
 	 * @param log
 	 */
-	private static void moveRobots(game_service game, graph gg) {
+	private static void moveRobots(game_service game, graph graph) {
 		List<String> log = game.move();
 		if(log!=null) {
 			long t = game.timeToEnd();
@@ -121,14 +117,30 @@ public class SimpleGameClient {
 				int dest = robot.get_dest();
 				Point3D pos = robot.get_pos();
 				robots.get(i).set_pos(pos);
-//				List<Integer> path=nodesPath(gg, src);
-				if(dest==-1) {	
-					dest = nextNode2(gg, src);
+
+				//if it is automatic
+				if(dest==-1 && gui.getState()==1) {	
+					dest = nextNodeAuto(graph, src);
 					//dest=path.get(i);
 					game.chooseNextEdge(rid, dest);
 					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 					System.out.println(robot.toJSON());
 				}//if
+
+				//if it is manual
+				else if(gui.getState()==0) {
+					robot=gui.getSelectedRobot();
+					dest=gui.getSelectedNode();
+					if(dest!=-1) {
+						//if the robot hasn't reached the destination node
+						if(robot!=null && dest!=robot.get_src()) {
+							robot.set_dest(dest);
+							dest = nextNodeManual(graph, src);
+							game.chooseNextEdge(robot.get_id(), dest);
+						}				
+					}
+
+				}//else if
 				updateFruites(game);
 			}//for
 		}//if
@@ -154,7 +166,7 @@ public class SimpleGameClient {
 	 * @param src
 	 * @return
 	 */
-	private static int nextNode(graph g, int src) {
+	private static int nextNodeRandom(graph g, int src) {
 		int ans = -1;
 		Collection<edge_data> ee = g.getE(src);
 		if(ee!=null) {
@@ -166,45 +178,67 @@ public class SimpleGameClient {
 			ans = itr.next().getDest();
 		}//if
 		return ans;
-	}//nextNode
+	}//nextNodeRandom
+
+	private static int nextNodeAuto(graph g, int src) {
+		//Finding the close fruit
+		Fruit close_fruit=choose_Close_Fruites(g.getNode(src).getLocation(),fruits);
+
+		//System.out.println("Close Fruit "+close_fruit);
+		//Fetching edge to fruit
+		Ex3_Algo algo=new Ex3_Algo();
+		edge_data edge_close_fruit=algo.fetchFruitToEdge(close_fruit, g);
+
+		//System.out.println("Fetch edge "+edge_close_fruit);
+		Graph_Algo g_Algo=new Graph_Algo(g);
+
+		//Calculating the shortest path between src and node_src
+		List<node_data> path=g_Algo.shortestPath(src, edge_close_fruit.getSrc());
+
+		//Convert the nodes path to Keys path
+		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
+
+		//Adding the end of the path
+		if(path_key.isEmpty())
+			return nextNodeRandom(g, src);
+		path_key.add(edge_close_fruit.getDest());
+		return path_key.get(1);
+	}//nextNodeAuto
+
+	private static int nextNodeManual(graph g, int src) {
+		Graph_Algo g_Algo=new Graph_Algo(g);
+		List<node_data> path=g_Algo.shortestPath(src, gui.getSelectedNode());
+		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
+		if(path_key.size()==1) {
+			return path_key.get(0);
+		}
+
+		return path_key.get(1);
+	}
 
 	private static List<Integer> nodesPath(graph g,int src)
 	{
 		//Finding the close fruit
 		Fruit close_fruit=choose_Close_Fruites(g.getNode(src).getLocation(),fruits);
+
 		//Fetching edge to fruit
 		Ex3_Algo algo=new Ex3_Algo();
 		edge_data edge_close_fruit=algo.fetchFruitToEdge(close_fruit, g);
 		Graph_Algo g_Algo=new Graph_Algo(g);
+
 		//Calculating the shortest path between src and node_src
 		List<node_data> path=g_Algo.shortestPath(src, edge_close_fruit.getSrc());
+
 		//Convert the nodes path to Keys path
 		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
+
 		//Adding the end of the path
 		path_key.add(edge_close_fruit.getDest());
 		return path_key;
-		
+
 	}//path_key
-	
-	private static int nextNode2(graph g, int src) {
-		//Finding the close fruit
-				Fruit close_fruit=choose_Close_Fruites(g.getNode(src).getLocation(),fruits);
-				//System.out.println("Close Fruit "+close_fruit);
-				//Fetching edge to fruit
-				Ex3_Algo algo=new Ex3_Algo();
-				edge_data edge_close_fruit=algo.fetchFruitToEdge(close_fruit, g);
-				//System.out.println("Fetch edge "+edge_close_fruit);
-				Graph_Algo g_Algo=new Graph_Algo(g);
-				//Calculating the shortest path between src and node_src
-				List<node_data> path=g_Algo.shortestPath(src, edge_close_fruit.getSrc());
-				//Convert the nodes path to Keys path
-				List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
-				//Adding the end of the path
-				if(path_key.isEmpty())
-					return nextNode(g, src);
-				path_key.add(edge_close_fruit.getDest());
-				return path_key.get(1);
-	}//nextNode2
+
+
 	/**
 	 * Choosing the closest fruit by distance
 	 * @param src - the src node of robot

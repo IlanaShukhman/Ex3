@@ -73,9 +73,11 @@ class Ex3_AlgoTest {
 		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
 
 		Fruit fruit= fruits.get(0);
+		
+		Ex3_Algo a=new Ex3_Algo();
 
 		edge_data EXPECTED=new EdgeData(8,9,1.8);
-		edge_data ACTUAL=Ex3_Algo.fetchFruitToEdge(fruit, gameGraph);
+		edge_data ACTUAL=a.fetchFruitToEdge(fruit, gameGraph);
 		assertEquals(EXPECTED.getSrc(),ACTUAL.getSrc(),"ERR: failed to return true when the src nodes are the same");
 		assertEquals(EXPECTED.getDest(),ACTUAL.getDest(),"ERR: failed to return true when the dst nodes are the same");
 		
