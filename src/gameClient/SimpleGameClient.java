@@ -45,7 +45,7 @@ public class SimpleGameClient {
 	}
 	public static void test1() {
 		//Choose scenario num
-		int scenario_num =19;
+		int scenario_num =23;
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		//Create Graph
 		String g = game.getGraph();
@@ -121,7 +121,6 @@ public class SimpleGameClient {
 				//if it is automatic
 				if(dest==-1 && gui.getState()==1) {	
 					dest = nextNodeAuto(graph, src);
-					//dest=path.get(i);
 					game.chooseNextEdge(rid, dest);
 					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 					System.out.println(robot.toJSON());
@@ -137,15 +136,18 @@ public class SimpleGameClient {
 							robot.set_dest(dest);
 							dest = nextNodeManual(graph, src);
 							game.chooseNextEdge(robot.get_id(), dest);
-						}				
-					}
+						}//if				
+					}//if
 
 				}//else if
 				updateFruites(game);
 			}//for
 		}//if
 	}//moveRobots
-
+	
+	
+	
+	
 	/**
 	 * Extract information of the fruites from server in Json language and Update them
 	 * @param game
@@ -179,7 +181,29 @@ public class SimpleGameClient {
 		}//if
 		return ans;
 	}//nextNodeRandom
-
+	
+	/**
+	 * if there is multiple robots on the same line
+	 * @param robot_dest
+	 * @param robot_id
+	 * @return
+	 */
+	private static boolean multipleRobotsSameLine(int d,int s, int i) {
+		for (int j=0;j<robots.size();j++) {
+			int id=robots.get(i).get_id();
+			int dest=robots.get(i).get_dest();
+			int src=robots.get(i).get_src();
+			if(((s==dest || s==src) && (d==src || d==dest))  && i!=j)
+				return true;
+		}//for
+		return false;
+	}//multipleRobotsSameLine
+	/**
+	 * Automatic next robot step by the recalculating path
+	 * @param g
+	 * @param src
+	 * @return
+	 */
 	private static int nextNodeAuto(graph g, int src) {
 		//Finding the close fruit
 		Fruit close_fruit=choose_Close_Fruites(g.getNode(src).getLocation(),fruits);
@@ -194,15 +218,25 @@ public class SimpleGameClient {
 
 		//Calculating the shortest path between src and node_src
 		List<node_data> path=g_Algo.shortestPath(src, edge_close_fruit.getSrc());
-
+		System.out.println("Path weight: "+g.getNode(edge_close_fruit.getSrc()).getWeight());
 		//Convert the nodes path to Keys path
 		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
-
-		//Adding the end of the path
-		if(path_key.isEmpty())
-			return nextNodeRandom(g, src);
 		path_key.add(edge_close_fruit.getDest());
-		return path_key.get(1);
+		//path_key.remove(0);
+
+		if(path_key.size()==1)
+			{
+				System.out.println("Path is EMPTY");
+				return nextNodeRandom(g, src);
+			}//while
+		int dest=path_key.get(1);
+		if(g.getNode(dest).getInfo().equals(String.valueOf(src)))
+		{
+			System.out.println("Change Direction");
+			return nextNodeRandom(g, src);
+		}
+		g.getNode(dest).setInfo(String.valueOf(src));
+		return dest;
 	}//nextNodeAuto
 
 	private static int nextNodeManual(graph g, int src) {
@@ -215,7 +249,12 @@ public class SimpleGameClient {
 
 		return path_key.get(1);
 	}
-
+	/**
+	 * Listing the shortest path to the closest fruit
+	 * @param g
+	 * @param src
+	 * @return
+	 */
 	private static List<Integer> nodesPath(graph g,int src)
 	{
 		//Finding the close fruit
@@ -259,4 +298,28 @@ public class SimpleGameClient {
 		}//for
 		return f;
 	}//nodePath
+	/**
+	 * Choosing the closest fruit by distance except the given fruit
+	 * @param src - the src node of robot
+	 * @param fruits - all the fruites
+	 * @return Fruit - the close one
+	 */
+	private static Fruit choose_Close_Fruites(Point3D src, List<Fruit> fruits,Fruit except) {
+		double min=Double.MAX_VALUE;
+		Fruit f=new Fruit();
+		for (Fruit fruit : fruits) {
+			if(!except.equals(fruit))
+			{
+				Point3D dest=fruit.getLocation();
+				double distance=src.distance3D(dest);
+				if(min>distance)
+				{
+					min=distance;
+					f=fruit;
+				}//if
+			}//if
+		}//for
+		return f;
+	}//nodePath
+	
 }

@@ -1,5 +1,8 @@
 package gameClient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONObject;
 
 import dataStructure.edge_data;
@@ -14,10 +17,39 @@ public class Robot {
 	private int _src;
 	private int _dest;
 	private double _speed;
+	
+	public int getStep() {
+		return step;
+	}
 
+	public void setStep(int step) {
+		this.step = step;
+	}
+
+	private List<Integer> path;
+	private Fruit target;
+	private int step;
 	public Robot()
 	{
+		this.target=new Fruit();
+		this.path=new ArrayList<Integer>();
+		this.step=0;
+	}
 
+	public List<Integer> getPath() {
+		return path;
+	}
+
+	public void setPath(List<Integer> path) {
+		this.path = path;
+	}
+
+	public Fruit getTarget() {
+		return target;
+	}
+
+	public void setTarget(Fruit target) {
+		this.target = target;
 	}
 
 	public Robot(int _id, Point3D _pos, double _value, int _src, int _dest, double _speed) {
@@ -156,6 +188,7 @@ public class Robot {
 		return toJSON();
 	}
 
+	
 	public static void main(String[] a) {
 		String s1="{\"Robot\":{\"id\":0,\"value\":0.0,\"src\":0,\"dest\":-1,\"speed\":1.0,\"pos\":\"35.18753053591606,32.10378225882353,0.0\"}}";
 		System.out.println(s1+"\n");
@@ -163,5 +196,5 @@ public class Robot {
 		r.initFromJson(s1);
 		System.out.println(r);
 	}
-
+	
 }

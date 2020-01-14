@@ -11,7 +11,7 @@ import gameClient.Fruit;
 import utils.Point3D;
 
 public class Ex3_Algo {
-	private Double EPS=0.0001;
+	private Double EPS=0.000000001;
 	/**
 	 * Searching all the edges of the graph and check the right edge of given fruit 
 	 * @param fruit
@@ -29,15 +29,19 @@ public class Ex3_Algo {
 				Point3D end=dest.getLocation();
 				//Check if it's on the right edge by definition and math
 				if(fruitOnEdge(start, end, mid) && (( node.getKey()-dest.getKey()>0 &&fruit.getType()==1)||( node.getKey()-dest.getKey()<0 &&fruit.getType()==-1)))
+				{
+					System.out.println("FRUIT: SRC="+edge.getSrc()+" DEST="+edge.getDest());
 					return edge;
+				}//if
 			}//for
 		}//for
+		System.out.println("NULL FRUIT");
 		return null;
 	}//fetchFruitToEdge
 	
 	private boolean fruitOnEdge(Point3D start,Point3D end,Point3D mid)
 	{
-		return (start.distance3D(mid)+mid.distance3D(end)<=start.distance3D(end)+0.0001);
+		return(Math.abs(start.distance2D(end)-(start.distance2D(mid)+end.distance2D(mid)))<=EPS);
 	}//fruitOnEdge
 	
 }

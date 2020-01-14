@@ -194,14 +194,16 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 		StdDraw.setPenColor(Color.BLACK);
 
+		
 		drawVer();
 		drawEdges();
-		updateRobots();
 		updateFruits();
+		updateRobots();
+		
 
 		StdDraw.show();
 
-	}
+	}//Draw
 
 	/**
 	 * Finding the limits of x coordinate for Screen creator

@@ -37,11 +37,13 @@ public class NodeData implements node_data,Serializable {
 		this.LOC = loc;
 		this.WEIGHT=Double.MAX_VALUE;
 		this.TAG=1;
+		this.INFO="";
 	}
 	public NodeData(int key, Point3D loc, double w) {
 		KEY = key;
 		LOC = loc;
 		WEIGHT = w;
+		this.INFO="";
 	}
 
 	@Override

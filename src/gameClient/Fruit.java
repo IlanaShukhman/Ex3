@@ -75,7 +75,12 @@ public class Fruit {
         String ans = "{\"Fruit\":{\"value\":" + this._value + "," + "\"type\":" + this._type + "," + "\"pos\":\"" + this._pos.toString() + "\"" + "}" + "}";
         return ans;
     }
-
+    public boolean equals(Fruit f)
+    {
+    	if(f.getLocation().equalsXY(this._pos) && f.getType()==this._type && f.getValue()==this._value)
+    		return true;
+    	return false;
+    }
     public static void main(String[] a) {
         double v = 10.0D;
         Point3D p = new Point3D(1.0D, 2.0D, 3.0D);
@@ -84,5 +89,5 @@ public class Fruit {
         System.out.println(s+"\n");
         f.initFromJson(s);
         System.out.println(f);
-    }
+    }//main
 }
