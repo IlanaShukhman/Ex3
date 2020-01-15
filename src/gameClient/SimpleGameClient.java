@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.JOptionPane;
+
 import java.util.Comparator;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,12 +48,14 @@ public class SimpleGameClient {
 	public static void main(String[] a) {
 		test1();
 	}
+	
 	public static void test1() {
 		//Choose scenario num
 		Ex3_Algo ex3_alg=new Ex3_Algo();
-		int scenario_num =23;
-		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		//Create Graph
+		String s=chooseFromList();
+		int scenario_num =Integer.valueOf(s);
+		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
 		gameGraph = new DGraph();
 		gameGraph.init(g);
@@ -99,10 +104,11 @@ public class SimpleGameClient {
 		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
 
-
+		gui.setLevel(scenario_num);
 		// should be a Thread!!!
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
+			updateFruites(game);
 		}
 
 
@@ -123,7 +129,13 @@ public class SimpleGameClient {
 		List<String> log = game.move();
 		if(log!=null) {
 			long t = game.timeToEnd();
+			gui.setTimeToEnd(t/1000);
 			for(int i=0;i<log.size();i++) {
+				
+				String info = game.toString();
+				GameServer gameServer=new GameServer();
+				gameServer.initFromJson(info);
+				gui.setScore(gameServer.get_grade());
 				String robot_json = log.get(i);
 				Robot robot=new Robot();
 				robot.initFromJson(robot_json);
@@ -135,10 +147,10 @@ public class SimpleGameClient {
 			
 				//if it is automatic
 				if(dest==-1 && gui.getState()==1) {	
-					
 					dest = nextNodeAuto(graph, src,robots.get(i));
 					game.chooseNextEdge(rid, dest);
 					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+					
 					System.out.println(robot.toJSON());
 				}//if
 
@@ -155,11 +167,24 @@ public class SimpleGameClient {
 						}//if				
 					}//if
 				}//else if
-				updateFruites(game);
+				//System.out.println(fruits);
+				
 			}//for
 		}//if
 	}//moveRobots
-	
+	/**
+	 * Pop up window to determine which scenario the client wants
+	 * @return string of the chosen value
+	 */
+	private static String chooseFromList() {
+		 String[] choices = new String [24];
+		 for (int i = 0; i < choices.length; i++) {
+			choices[i]=String.valueOf(i);
+		}//for
+		    String input = (String) JOptionPane.showInputDialog(null, "Please choose the level from [0,23]",
+		        "The Maze Of Waze", JOptionPane.QUESTION_MESSAGE, null,choices,choices[0]); 
+		   return input;
+	}//chooseFromList
 	
 	
 	
