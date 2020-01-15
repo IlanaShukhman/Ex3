@@ -124,6 +124,59 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 		}//catch 
 	}//save
 
+	public void BFS(int source_key)
+	{
+		this.predessesors=new HashMap<node_data, node_data>();
+		initializingNodes(this.Graph);
+		this.Graph.getNode(source_key).setTag(1);
+		this.Graph.getNode(source_key).setWeight(0);
+
+		this.predessesors.put(this.Graph.getNode(source_key), null);
+		Queue<node_data> queue=new LinkedList<node_data>();
+		queue.add(this.Graph.getNode(source_key));
+		while(!queue.isEmpty())
+		{
+			node_data node=queue.remove();
+			Collection<edge_data> neighbors=this.Graph.getE(node.getKey());
+			for (edge_data edge : neighbors) {
+				if(this.Graph.getNode(edge.getDest()).getTag()==0)
+				{
+					this.Graph.getNode(edge.getDest()).setTag(1);
+					this.Graph.getNode(edge.getDest()).setWeight(node.getWeight()+1);
+					this.predessesors.put(this.Graph.getNode(edge.getDest()),node);
+					queue.add(this.Graph.getNode(edge.getDest()));
+				}//if
+			}//for
+			node.setTag(3);
+		}//while
+	}//BFS
+	
+	public List<Integer> BFS_PATH(int src_key,int dest_key)
+	{
+		List<Integer> path=new ArrayList<Integer>();
+		BFS(src_key);
+		while(dest_key!=src_key)
+		{
+			path.add(dest_key);
+			node_data node = Graph.getNode(dest_key);
+			dest_key=this.predessesors.get(node).getKey();
+			
+		}//while
+		return reverse(path);
+	}//BFS_PATH
+	/**
+	 * Pass all the nodes and color them to white, predessesors to null and distanse to infinity
+	 */
+	private void initializingNodes(graph g) {
+		Collection<node_data> ver=g.getV();
+		for (node_data node : ver) {
+			node.setTag(0);
+			node.setWeight(Integer.MAX_VALUE);
+		}//for
+	}//initializingNodes
+
+	
+	
 
 	/**
 	 * Returns true if and only if (iff) there is a valid path from EVREY node to each
@@ -491,6 +544,19 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 	private ArrayList<node_data> Reverse(List<node_data> path)
 	{
 		ArrayList<node_data> reverse=new ArrayList<node_data>();
+		for (int i = path.size()-1; i >=0; i--) {
+			reverse.add(path.get(i));
+		}//for
+		return reverse;
+	}//reverse
+	/**
+	 * Reverse the List for proper shortest path
+	 * @param path - The shortest path from the end
+	 * @return The shortest path from the begining
+	 */
+	private ArrayList<Integer> reverse(List<Integer> path)
+	{
+		ArrayList<Integer> reverse=new ArrayList<Integer>();
 		for (int i = path.size()-1; i >=0; i--) {
 			reverse.add(path.get(i));
 		}//for

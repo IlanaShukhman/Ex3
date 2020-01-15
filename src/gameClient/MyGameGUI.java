@@ -45,13 +45,18 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	private List<Robot> robots;
 	private List<Fruit> fruits;
+	
 	private double score;
 	private long timeToEnd;
 	private int level;
+	private boolean isRunning;	
+	
 	//this is used to determine if it is automatic or manual
 	private int state;
 	private Robot selectedRobot;
 	private int selectedNode;
+
+	
 	
 
 	/**
@@ -78,6 +83,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		this.score=0;
 		this.level=0;
 		this.timeToEnd=0;
+		this.isRunning=false;
 		
 		StdDraw.setCanvasSize(width, height);	
 		this.state=JOptionPane.showConfirmDialog(this, "Manual?");
@@ -100,7 +106,10 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	public void setScore(double score) {
 		this.score = score;
 	}
-
+	public void setIsRunning(boolean b) {
+		this.isRunning=b;
+		
+	}
 	public void setTimeToEnd(long timeToEnd) {
 		this.timeToEnd = timeToEnd;
 	}
@@ -218,11 +227,20 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		drawEdges();
 		drawFruits();
 		drawRobots();
-
+		if(isRunning==false)
+			drawEndFrame();
 		StdDraw.show();
 
 	}//Draw
 
+/**
+ * End Frame: Game Is Over
+ */
+private void drawEndFrame() {
+	StdDraw.setPenColor(Color.RED);
+	StdDraw.text(497,497, "Game Is Over");
+		
+	}
 
 /**
  * Drawing the score of the game
@@ -341,6 +359,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		if(state==0) {//means it is manual
 			double x= reUpdateX(StdDraw.mouseX());
 			double y= reUpdateY(StdDraw.mouseY());
+			//System.out.println("X: "+StdDraw.mouseX()+" Y:"+StdDraw.mouseX());
 			Point3D p=new Point3D(x,y);
 			for(Integer node : graph.get_Node_Hash().keySet()) {
 				Point3D loc=graph.get_Node_Hash().get(node).getLocation();
@@ -401,6 +420,8 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		gameGraph.init(g);
 //		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
 	}
+
+	
 
 }
 

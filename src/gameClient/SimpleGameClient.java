@@ -103,16 +103,16 @@ public class SimpleGameClient {
 		}//for
 		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
-
+		gui.setIsRunning(true);
 		gui.setLevel(scenario_num);
 		// should be a Thread!!!
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
-			updateFruites(game);
+			
 		}
 
 
-
+		gui.setIsRunning(false);
 		String results = game.toString();
 		System.out.println("Game Over: "+results);
 	}
@@ -165,9 +165,7 @@ public class SimpleGameClient {
 						int d = nextNodeManual(graph, src, robots.get(i).get_dest());
 						game.chooseNextEdge(rid, d);
 					}
-
-				}//else ixf
-
+				}//else if
 				updateFruites(game);
 			}//for
 		}//if
@@ -201,27 +199,7 @@ public class SimpleGameClient {
 		}//for
 	}//updateFruites
 
-	/**
-	 * a very simple random walk implementation!
-	 * @param g
-	 * @param src
-	 * @return
-	 */
-	private static int nextNodeRandom(graph g, int src,int dest) {
-		int ans = -1;
-		Collection<edge_data> ee = g.getE(src);
-		if(ee!=null) {
-			Iterator<edge_data> itr = ee.iterator();
-			int s = ee.size();
-			int r = (int)(Math.random()*s);
-			int i=0;
-			while(i<r) {itr.next();i++;}
-			ans = itr.next().getDest();
-		}//if
-		if(ans==dest)
-			nextNodeRandom(g, src,dest);
-		return ans;
-	}//nextNodeRandom
+	
 	/**
 	 * a very simple random walk implementation!
 	 * @param g
@@ -243,22 +221,6 @@ public class SimpleGameClient {
 	}//nextNodeRandom
 
 	/**
-	 * if there is multiple robots on the same line
-	 * @param robot_dest
-	 * @param robot_id
-	 * @return
-	 */
-	private static boolean multipleRobotsSameLine(int d,int s, int i) {
-		for (int j=0;j<robots.size();j++) {
-			int id=robots.get(i).get_id();
-			int dest=robots.get(i).get_dest();
-			int src=robots.get(i).get_src();
-			if(((s==dest || s==src) && (d==src || d==dest))  && i!=j)
-				return true;
-		}//for
-		return false;
-	}//multipleRobotsSameLine
-	/**
 	 * Automatic next robot step by the recalculating path
 	 * @param g
 	 * @param src
@@ -269,30 +231,30 @@ public class SimpleGameClient {
 		Fruit close_fruit=choose_Close_Fruites(robot,g);
 		//Fetching edge to fruit
 		Ex3_Algo algo=new Ex3_Algo();
-		edge_data edge_close_fruit=algo.fetchFruitToEdge(close_fruit, g);
+		close_fruit.setEdge(algo.fetchFruitToEdge(close_fruit, g));
 
 		Graph_Algo g_Algo=new Graph_Algo(g);
 
 		//Calculating the shortest path between src and node_src
-		List<node_data> path=g_Algo.shortestPath(src, edge_close_fruit.getSrc());
+		List<node_data> path=g_Algo.shortestPath(src, close_fruit.getEdge().getSrc());
 
 		//Convert the nodes path to Keys path
 		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
-		path_key.add(edge_close_fruit.getDest());
-		System.out.println("Path: "+path_key+" Path weight: "+g.getNode(edge_close_fruit.getSrc()).getWeight());
-
+		path_key.add(close_fruit.getEdge().getDest());
+//		System.out.println("Path: "+path_key+" Path weight: "+g.getNode(close_fruit.getEdge().getSrc()).getWeight());
+		
 		if(path_key.size()<=2)
 		{
-			System.out.println("Path is EMPTY");
 			return nextNodeRandom(g, src);
 		}//while
 		int dest=path_key.get(1);
 		if(g.getNode(dest).getInfo().equals(String.valueOf(src)))
 		{
 			System.out.println("Repeating on the same edge");
+			System.out.println("SRC: "+src+" DEST: "+close_fruit.getEdge().getSrc()+" PATH: "+g_Algo.BFS_PATH(src, close_fruit.getEdge().getSrc()));
 			//return nextNodeRandom(g, src,dest);
 			//return changeDirection(g, src,dest, close_fruit);
-		}
+		}//if
 
 		g.getNode(dest).setInfo(String.valueOf(src));
 		robot.setTarget(close_fruit);
@@ -305,13 +267,20 @@ public class SimpleGameClient {
 		double min=Double.MAX_VALUE;
 		Fruit target=new Fruit();
 		g_algo=new Graph_Algo(g);
+		g_algo.BFS(src);
 		for (Fruit fruit : fruits) {
-			double shortestpath=g_algo.shortestPathDist(src, fruit.getEdge().getSrc());
-			if(min>shortestpath)
+			if(alreadyTarget(fruit) && !robot.getTarget().equals(fruit))
+				System.out.println("ALREADY TARGET");
+			else
 			{
-				min=shortestpath;
-				target=fruit;
-			}//if
+				//double shortestpath=g_algo.shortestPathDist(src, fruit.getEdge().getSrc());
+				double shortestpath=g.getNode(fruit.getEdge().getSrc()).getWeight();
+				if(min>shortestpath)
+				{
+					min=shortestpath;
+					target=fruit;
+				}//if
+			}//else
 		}//for
 		return target;
 	}//choose_Close_Fruites
