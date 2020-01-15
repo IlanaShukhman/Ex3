@@ -160,7 +160,15 @@ public class SimpleGameClient {
 					robot=gui.getSelectedRobot();
 					dest=gui.getSelectedNode();
 
+					//after the user clicked 
 					if(robot!=null && dest!=-1) {
+						for (Robot r : robots) {
+							if(gameGraph.get_Node_Hash().get(dest).getLocation().equals(r.get_pos()) && !r.equals(robot)) {
+								dest=-1;
+								break;
+							}
+							
+						}
 						robot.set_dest(dest);
 						int d = nextNodeManual(graph, src, robots.get(i).get_dest());
 						game.chooseNextEdge(rid, d);
@@ -308,6 +316,7 @@ public class SimpleGameClient {
 			return path_key.get(0);
 		}
 
+		
 		return path_key.get(1);
 	}
 
