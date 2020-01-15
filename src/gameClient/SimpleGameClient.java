@@ -246,12 +246,12 @@ public class SimpleGameClient {
 		//Calculating the shortest path between src and node_src
 		List<node_data> path=g_Algo.shortestPath(src, close_fruit.getEdge().getSrc());
 
-		//Convert the nodes path to Keys path
+		//Convert the nodes path  to Keys path
 		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
 		path_key.add(close_fruit.getEdge().getDest());
-//		System.out.println("Path: "+path_key+" Path weight: "+g.getNode(close_fruit.getEdge().getSrc()).getWeight());
+		System.out.println("Path: "+path_key+" Path weight: "+g.getNode(close_fruit.getEdge().getSrc()).getWeight());
 		
-		if(path_key.size()<=2)
+		if(path_key.size()<2)
 		{
 			return nextNodeRandom(g, src);
 		}//while
