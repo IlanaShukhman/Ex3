@@ -274,7 +274,7 @@ public class SimpleGameClient {
 			else
 			{
 				//double shortestpath=g_algo.shortestPathDist(src, fruit.getEdge().getSrc());
-				double shortestpath=g.getNode(fruit.getEdge().getSrc()).getWeight();
+				double shortestpath=g.getNode(fruit.getEdge().getDest()).getWeight();
 				if(min>shortestpath)
 				{
 					min=shortestpath;
