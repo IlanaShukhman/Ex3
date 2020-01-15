@@ -45,13 +45,14 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	private List<Robot> robots;
 	private List<Fruit> fruits;
-
+	private double score;
+	private long timeToEnd;
+	private int level;
 	//this is used to determine if it is automatic or manual
 	private int state;
-
 	private Robot selectedRobot;
 	private int selectedNode;
-
+	
 
 	/**
 	 * Constructors
@@ -63,32 +64,50 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	public MyGameGUI(DGraph g, List<Robot> robots,List<Fruit> fruits){
 		width=1000;
 		height=600;
-		graph=g;
+		this.graph=g;
 
-		rx=rangeX();
-		ry=rangeY();
+		this.rx=rangeX();
+		this.ry=rangeY();
 
-		proportionX=width/rx.get_length();
-		proportionY=height/ry.get_length();
+		this.proportionX=width/rx.get_length();
+		this.proportionY=height/ry.get_length();
 
 		this.robots=robots;
 		this.fruits=fruits;
-
+		
+		this.score=0;
+		this.level=0;
+		this.timeToEnd=0;
+		
 		StdDraw.setCanvasSize(width, height);	
-
-		state=JOptionPane.showConfirmDialog(this, "Manual?");
-		selectedNode=-1;
-		selectedRobot=null;
+		this.state=JOptionPane.showConfirmDialog(this, "Manual?");
+		this.selectedNode=-1;
+		this.selectedRobot=null;
 
 		Thread t=new Thread(this);
 		t.start();
 
 	}//Graph_GUI
 
+	
+
+	
+
 	public void initGUI() {
 		draw();
 	}//initGui
 
+	public void setScore(double score) {
+		this.score = score;
+	}
+
+	public void setTimeToEnd(long timeToEnd) {
+		this.timeToEnd = timeToEnd;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
 	public int getState() {
 		return this.state;
 	}
@@ -134,8 +153,6 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 				double y1=updateY(graph.get_Node_Hash().get(u).getLocation().y());
 
 				StdDraw.line(x0, y0, x1, y1);
-				//				drawPolygon();
-				//				StdDraw.filledPolygon(x, y);
 				StdDraw.text(x1, y1+15, Integer.toString(graph.get_Node_Hash().get(u).getKey()));
 
 				//add the weight of the edge
@@ -147,12 +164,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		}//for
 	}//draw edges
 
-	private void drawPolygon() {
-		// TODO Auto-generated method stub
+	
 
-	}
-
-	private void updateRobots() {
+	private void drawRobots() {
 		Color[] color= {Color.blue,Color.darkGray,Color.green,Color.magenta,Color.pink};
 		int i=0;
 		for(Robot robot : robots) {
@@ -165,17 +179,17 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 				StdDraw.circle(xr,yr,12);
 
 			i++;
-		}
-	}
+		}//for
+	}//updateRobots
 
-	private void updateFruits() {
+	private void drawFruits() {
 		for(Fruit fruit: fruits) {
 
 			double xr=updateX(fruit.getLocation().x());
 			double yr=updateY(fruit.getLocation().y());
 
 
-
+			StdDraw.text(xr,yr-20 , "Value: "+Double.toString(fruit.getValue()));
 			if(fruit.getType()==-1) {
 				StdDraw.picture(xr, yr, "banana.png", 25, 25);
 			}
@@ -186,6 +200,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	}
 
+	
 
 
 	public void draw() {
@@ -197,16 +212,26 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 		StdDraw.setPenColor(Color.BLACK);
 
-		
+		drawGameInfo();
+
 		drawVer();
 		drawEdges();
-		updateFruits();
-		updateRobots();
-		
+		drawFruits();
+		drawRobots();
 
 		StdDraw.show();
 
 	}//Draw
+
+
+/**
+ * Drawing the score of the game
+ */
+	private void drawGameInfo() {
+		StdDraw.text(220,590.0 , "Score: "+Double.toString(this.score));
+		StdDraw.text(40.0,590.0 , "Level: "+Double.toString(this.level));
+		StdDraw.text(130.0,590.0 , "Time: "+Double.toString(this.timeToEnd));
+	}//drawScore
 
 	/**
 	 * Finding the limits of x coordinate for Screen creator
@@ -374,7 +399,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		String g = game.getGraph();
 		DGraph gameGraph = new DGraph();
 		gameGraph.init(g);
-		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
+//		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
 	}
 
 }

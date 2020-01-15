@@ -11,7 +11,6 @@ public class GameServer {
 	private double _grade;
 	private int _number_of_moves;
 	private int _robots_number;
-
 	public GameServer()
 	{
 
