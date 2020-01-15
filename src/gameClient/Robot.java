@@ -17,39 +17,21 @@ public class Robot {
 	private int _src;
 	private int _dest;
 	private double _speed;
-	
-	public int getStep() {
-		return step;
-	}
-
-	public void setStep(int step) {
-		this.step = step;
-	}
-
-	private List<Integer> path;
 	private Fruit target;
-	private int step;
-	public Robot()
-	{
-		this.target=new Fruit();
-		this.path=new ArrayList<Integer>();
-		this.step=0;
-	}
 
-	public List<Integer> getPath() {
-		return path;
-	}
-
-	public void setPath(List<Integer> path) {
-		this.path = path;
-	}
-
+	
 	public Fruit getTarget() {
 		return target;
 	}
 
 	public void setTarget(Fruit target) {
 		this.target = target;
+		System.out.println("set target");
+	}
+
+
+	public Robot()
+	{
 	}
 
 	public Robot(int _id, Point3D _pos, double _value, int _src, int _dest, double _speed) {
