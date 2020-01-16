@@ -75,6 +75,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import gameClient.MyGameGUI;
+
 /**
  *  The {@code StdDraw} class provides a basic capability for
  *  creating drawings with your programs. It uses a simple graphics model that
@@ -715,20 +717,24 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	// create the menu bar (changed to private)
 	private static JMenuBar createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
+		
 		JMenu menu1 = new JMenu("Save");
-//		JMenu menu2 = new JMenu("Algorithms");
+		JMenu menu2 = new JMenu("Map");
+		
 		menuBar.add(menu1);
-//		menuBar.add(menu2);
-		JMenuItem menuItem1 = new JMenuItem(" Save to fileS");
-//		JMenuItem menuItem2 = new JMenuItem(" TSP");
+		menuBar.add(menu2);
+		
+		JMenuItem menuItem1 = new JMenuItem("Save to file");
+		JMenuItem menuItem2 = new JMenuItem("Map");
+		
 		menuItem1.addActionListener(std);
 		menuItem1.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-//		menuItem2.addActionListener(std);
-//		menuItem2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-//				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		menuItem2.addActionListener(std);
+		
 		menu1.add(menuItem1);
-//		menu2.add(menuItem2);
+		menu2.add(menuItem2);
+		
 		return menuBar;
 	}
 
@@ -1661,12 +1667,20 @@ public final class StdDraw implements ActionListener, MouseListener, MouseMotion
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
-		chooser.setVisible(true);
-		String filename = chooser.getFile();
-		if (filename != null) {
-			StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
-		}
+		String str = e.getActionCommand();
+		if(str.equals("Save to file"))
+		{
+			FileDialog chooser = new FileDialog(StdDraw.frame, "Use a .png or .jpg extension", FileDialog.SAVE);
+			chooser.setVisible(true);
+			String filename = chooser.getFile();
+			if (filename != null) {
+				StdDraw.save(chooser.getDirectory() + File.separator + chooser.getFile());
+			}
+		}//if
+		else if(str.equals("Map"))
+		{
+			StdDraw.picture(470, 470,"A1.png",25,25);
+		}//else if
 	}
 
 

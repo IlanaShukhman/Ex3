@@ -56,6 +56,8 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	private Robot selectedRobot;
 	private int selectedNode;
 
+	private String map;
+	
 	
 	
 
@@ -103,6 +105,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		draw();
 	}//initGui
 
+	public void setMap(String map) {
+		this.map=map;
+	}
 	public void setScore(double score) {
 		this.score = score;
 	}
@@ -205,6 +210,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			else if(fruit.getType()==1) {
 				StdDraw.picture(xr, yr, "apple.png", 25, 25);
 			}
+			
 		}
 
 	}
@@ -220,9 +226,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		StdDraw.setYscale(0,600);
 
 		StdDraw.setPenColor(Color.BLACK);
-
+		
 		drawGameInfo();
-
+		//StdDraw.picture(500,300, this.map+".png", 1000, 600);
 		drawVer();
 		drawEdges();
 		drawFruits();
@@ -359,7 +365,7 @@ private void drawEndFrame() {
 		if(state==0) {//means it is manual
 			double x= reUpdateX(StdDraw.mouseX());
 			double y= reUpdateY(StdDraw.mouseY());
-			//System.out.println("X: "+StdDraw.mouseX()+" Y:"+StdDraw.mouseX());
+			System.out.println("X: "+StdDraw.mouseX()+" Y:"+StdDraw.mouseX());
 			Point3D p=new Point3D(x,y);
 			for(Integer node : graph.get_Node_Hash().keySet()) {
 				Point3D loc=graph.get_Node_Hash().get(node).getLocation();
@@ -401,15 +407,13 @@ private void drawEndFrame() {
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-
+		
 	}
-
 
 
 	public static void main(String[] a) {
@@ -420,6 +424,7 @@ private void drawEndFrame() {
 		gameGraph.init(g);
 //		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
 	}
+
 
 	
 

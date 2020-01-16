@@ -69,7 +69,7 @@ public class SimpleGameClient {
 		GameServer gameServer=new GameServer();
 		gameServer.initFromJson(info);
 		int numRobots = gameServer.get_robots_number();
-
+		
 		System.out.println(gameServer);
 		System.out.println(g);
 
@@ -105,7 +105,10 @@ public class SimpleGameClient {
 		game.startGame();
 		gui.setIsRunning(true);
 		gui.setLevel(scenario_num);
+		gui.setMap(gameServer.get_data());
+		System.out.println(gameServer.get_data());
 		// should be a Thread!!!
+		
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
 			

@@ -32,6 +32,7 @@ public class Robot {
 
 	public Robot()
 	{
+		
 	}
 
 	public Robot(int _id, Point3D _pos, double _value, int _src, int _dest, double _speed) {
