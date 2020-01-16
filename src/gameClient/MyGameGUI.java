@@ -45,21 +45,19 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	private List<Robot> robots;
 	private List<Fruit> fruits;
-	
+
 	private double score;
 	private long timeToEnd;
 	private int level;
 	private boolean isRunning;	
-	
+
 	//this is used to determine if it is automatic or manual
 	private int state;
 	private Robot selectedRobot;
 	private int selectedNode;
 
 	private String map;
-	
-	
-	
+
 
 	/**
 	 * Constructors
@@ -81,12 +79,12 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 		this.robots=robots;
 		this.fruits=fruits;
-		
+
 		this.score=0;
 		this.level=0;
 		this.timeToEnd=0;
 		this.isRunning=false;
-		
+
 		StdDraw.setCanvasSize(width, height);	
 		this.state=JOptionPane.showConfirmDialog(this, "Manual?");
 		this.selectedNode=-1;
@@ -97,9 +95,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	}//Graph_GUI
 
-	
 
-	
+
+
 
 	public void initGUI() {
 		draw();
@@ -113,7 +111,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	}
 	public void setIsRunning(boolean b) {
 		this.isRunning=b;
-		
+
 	}
 	public void setTimeToEnd(long timeToEnd) {
 		this.timeToEnd = timeToEnd;
@@ -178,7 +176,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		}//for
 	}//draw edges
 
-	
+
 
 	private void drawRobots() {
 		Color[] color= {Color.blue,Color.darkGray,Color.green,Color.magenta,Color.pink};
@@ -215,7 +213,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	}
 
-	
+
 
 
 	public void draw() {
@@ -239,18 +237,18 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	}//Draw
 
-/**
- * End Frame: Game Is Over
- */
-private void drawEndFrame() {
-	StdDraw.setPenColor(Color.RED);
-	StdDraw.text(497,497, "Game Is Over");
-		
+	/**
+	 * End Frame: Game Is Over
+	 */
+	private void drawEndFrame() {
+		StdDraw.setPenColor(Color.RED);
+		StdDraw.text(497,497, "Game Is Over");
+
 	}
 
-/**
- * Drawing the score of the game
- */
+	/**
+	 * Drawing the score of the game
+	 */
 	private void drawGameInfo() {
 		StdDraw.text(220,590.0 , "Score: "+Double.toString(this.score));
 		StdDraw.text(40.0,590.0 , "Level: "+Double.toString(this.level));
@@ -341,7 +339,7 @@ private void drawEndFrame() {
 			return true;
 		return false;
 	}
-	
+
 	/**
 	 * This method converts from pixels to map-coordinates
 	 * @param x
@@ -350,7 +348,7 @@ private void drawEndFrame() {
 	private double reUpdateX(double x) {
 		return (x/proportionX)+rx.get_min();
 	}
-	
+
 	/**
 	 * This method converts from pixels to map-coordinates
 	 * @param y
@@ -361,7 +359,6 @@ private void drawEndFrame() {
 	}
 
 	private void pressed() {
-		
 		if(state==0) {//means it is manual
 			double x= reUpdateX(StdDraw.mouseX());
 			double y= reUpdateY(StdDraw.mouseY());
@@ -369,7 +366,7 @@ private void drawEndFrame() {
 			Point3D p=new Point3D(x,y);
 			for(Integer node : graph.get_Node_Hash().keySet()) {
 				Point3D loc=graph.get_Node_Hash().get(node).getLocation();
-				if(selectedRobot!=null && isClose(p,loc) ) {
+				if(/*selectedRobot!=null &&*/ isClose(p,loc) ) {
 					selectedNode=node;
 				}
 			}
@@ -385,11 +382,11 @@ private void drawEndFrame() {
 		}
 	}
 
-	
+
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		
+
 	}
 
 	@Override
@@ -422,11 +419,8 @@ private void drawEndFrame() {
 		String g = game.getGraph();
 		DGraph gameGraph = new DGraph();
 		gameGraph.init(g);
-//		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
+		//		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
 	}
-
-
-	
 
 }
 

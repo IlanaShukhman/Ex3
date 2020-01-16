@@ -111,7 +111,7 @@ public class SimpleGameClient {
 		
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
-			
+
 		}
 
 
@@ -163,8 +163,11 @@ public class SimpleGameClient {
 					robot=gui.getSelectedRobot();
 					dest=gui.getSelectedNode();
 
+					//after the user clicked 
 					if(robot!=null && dest!=-1) {
-						robot.set_dest(dest);
+						if(okayToGo(dest)) {
+							robot.set_dest(dest);		
+						}
 						int d = nextNodeManual(graph, src, robots.get(i).get_dest());
 						game.chooseNextEdge(rid, d);
 					}
@@ -178,13 +181,13 @@ public class SimpleGameClient {
 	 * @return string of the chosen value
 	 */
 	private static String chooseFromList() {
-		 String[] choices = new String [24];
-		 for (int i = 0; i < choices.length; i++) {
+		String[] choices = new String [24];
+		for (int i = 0; i < choices.length; i++) {
 			choices[i]=String.valueOf(i);
 		}//for
-		    String input = (String) JOptionPane.showInputDialog(null, "Please choose the level from [0,23]",
-		        "The Maze Of Waze", JOptionPane.QUESTION_MESSAGE, null,choices,choices[0]);
-		   return input;
+		String input = (String) JOptionPane.showInputDialog(null, "Please choose the level from [0,23]",
+				"The Maze Of Waze", JOptionPane.QUESTION_MESSAGE, null,choices,choices[0]);
+		return input;
 	}//chooseFromList
 
 
@@ -202,7 +205,7 @@ public class SimpleGameClient {
 		}//for
 	}//updateFruites
 
-	
+
 	/**
 	 * a very simple random walk implementation!
 	 * @param g
@@ -245,7 +248,7 @@ public class SimpleGameClient {
 		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
 		path_key.add(close_fruit.getEdge().getDest());
 		System.out.println("Path: "+path_key+" Path weight: "+g.getNode(close_fruit.getEdge().getSrc()).getWeight());
-		
+
 		if(path_key.size()<2)
 		{
 			return nextNodeRandom(g, src);
@@ -297,6 +300,23 @@ public class SimpleGameClient {
 		return false;
 	}//alreadyTarget
 
+	/**
+	 * return false if dest is a node that a robot is on-
+	 * that means the user probably tried to pick up the robot, and not the node.
+	 * @param dest is the node the user clicked on
+	 * @return false if there is a robot on dest - else, true, and it is okay to go there.
+	 */
+	private static boolean okayToGo(int dest) {
+		for(Robot robot : robots) {
+			if(gameGraph.get_Node_Hash().get(dest).getLocation().equals(robot.get_pos())) {
+				return false;
+			}				
+		}
+
+
+		return true;
+	}
+
 	private static int nextNodeManual(graph g, int src, int dest) {
 		if(dest==-1)
 			return -1;
@@ -310,6 +330,7 @@ public class SimpleGameClient {
 		else if(path_key.size()==1) {
 			return path_key.get(0);
 		}
+
 
 		return path_key.get(1);
 	}
