@@ -15,10 +15,10 @@ public class KML_Logger implements Runnable {
 
 	private int level;
 	private DGraph graph;
-	private static List<Robot> robots;
-	private static List<Fruit> fruits;
-	private static game_service game;
-	private static int timeOfGame;
+	private List<Robot> robots;
+	private List<Fruit> fruits;
+	private game_service game;
+	private int timeOfGame;
 
 
 	public KML_Logger(int level, DGraph graph, List<Robot> robots, List<Fruit> fruits , game_service game) {
@@ -47,9 +47,12 @@ public class KML_Logger implements Runnable {
 						+ "<Document>\n" + 
 						"<name>"+ this.level + ".kml</name>\r\n";
 
-		file+=addPoints();	
-		while(game.isRunning())
-			file+=updateRobots();	
+		file+=addPoints();
+		
+		while(game.isRunning()) {
+			file+=updateFruits();
+			//file+=updateRobots();
+		}
 
 		file+=	"<Style id=\"orange-5px\">" +
 				"<LineStyle>" + 
@@ -83,7 +86,6 @@ public class KML_Logger implements Runnable {
 				"</Document>\r\n" + 
 				"</kml>\r\n";
 
-		System.out.println(file);
 
 		try {
 			saveToFile(file);
@@ -95,9 +97,42 @@ public class KML_Logger implements Runnable {
 		return file;
 	}
 
+	private String updateFruits() {
+		String str="";
+		long time=(timeOfGame - game.timeToEnd())/1000;
+
+		for(Fruit fruit: fruits) {
+			str+=	"<Placemark>\r\n"+
+
+					"<TimeSpan>\r\n"+
+					"<begin>"+time+"</begin>\r\n" + 
+					"<end>" + (time+1) + "</end>\r\n"+
+					"</TimeSpan>\r\n"+
+
+					"<Style id=\"mycustommarker\">\r\n" + 
+					"<IconStyle>\r\n" + 
+					"<Icon>\r\n" ; 
+					
+			if(fruit.getType()==-1) {
+				str+=	"<href>http://maps.google.com/mapfiles/kml/shapes/mountains.png</href>";
+			}
+			else
+				str+=	"<href>http://maps.google.com/mapfiles/kml/shapes/sailing.png</href>";
+			
+			str+=	"</Icon>\r\n" + 
+					"</IconStyle>\r\n" + 
+					"</Style>\r\n"+
+					"<Point>\r\n"+  
+					"<coordinates>"+ fruit.getLocation() + "</coordinates>\r\n"+  
+					"</Point>\r\n"+
+					"</Placemark>\r\n";
+		}
+		return str;
+	}
 
 
 	private String updateRobots() {
+		
 		String str="";
 		long time=(timeOfGame - game.timeToEnd())/1000;
 
@@ -157,7 +192,6 @@ public class KML_Logger implements Runnable {
 	@Override
 	public void run() {
 		createKMLfile();
-
 	}
 
 }
