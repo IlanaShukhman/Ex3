@@ -109,6 +109,9 @@ public class SimpleGameClient {
 		System.out.println(gameServer.get_data());
 		// should be a Thread!!!
 		
+		
+		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
+		
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
 
