@@ -270,17 +270,17 @@ public class SimpleGameClient {
 
 	private static Fruit choose_Close_Fruites(Robot robot,graph g) {
 		int src=robot.get_src();
-		double min=Double.MAX_VALUE;
+		float min=Float.MAX_VALUE;
 		Fruit target=new Fruit();
 		g_algo=new Graph_Algo(g);
-		g_algo.BFS(src);
+		//g_algo.BFS(src);
 		for (Fruit fruit : fruits) {
 			if(alreadyTarget(fruit) && !robot.getTarget().equals(fruit))
 				System.out.println("ALREADY TARGET");
 			else
 			{
-				//double shortestpath=g_algo.shortestPathDist(src, fruit.getEdge().getSrc());
-				double shortestpath=g.getNode(fruit.getEdge().getDest()).getWeight();
+				float shortestpath=(float) ((g_algo.shortestPathDist(src, fruit.getEdge().getSrc())/fruit.getValue()));
+				//float shortestpath=(float) ((g.getNode(fruit.getEdge().getDest()).getWeight())/fruit.getValue());
 				if(min>shortestpath)
 				{
 					min=shortestpath;

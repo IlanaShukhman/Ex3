@@ -89,6 +89,11 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		this.state=JOptionPane.showConfirmDialog(this, "Manual?");
 		this.selectedNode=-1;
 		this.selectedRobot=null;
+		
+		KML_Logger kmlFile=new KML_Logger(this.level, this.graph, robots, fruits);
+		kmlFile.createKMLfile();
+		
+		
 
 		Thread t=new Thread(this);
 		t.start();
@@ -225,8 +230,10 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 		StdDraw.setPenColor(Color.BLACK);
 		
+
 		
-		StdDraw.picture(500,300, this.map+".png", 1000, 600);
+		//StdDraw.picture(500,300, this.map+".png", 1000, 600);
+
 		drawVer();
 		drawEdges();
 		drawFruits();
@@ -254,6 +261,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		StdDraw.text(220,580.0 , "Score: "+Double.toString(this.score));
 		StdDraw.text(40.0,580.0 , "Level: "+Double.toString(this.level));
 		StdDraw.text(130.0,580.0 , "Time: "+Double.toString(this.timeToEnd));
+//		StdDraw.text(230.0, 570.0 , "Score: "+Double.toString(this.score));
+//		StdDraw.text(50.0, 570.0 , "Level: "+Double.toString(this.level));
+//		StdDraw.text(140.0, 570.0 , "Time: "+Double.toString(this.timeToEnd));
 	}//drawScore
 
 	/**
