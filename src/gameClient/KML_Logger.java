@@ -8,38 +8,49 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 
+import Server.game_service;
 import dataStructure.DGraph;
 
-public class KML_Logger {
+public class KML_Logger implements Runnable {
 
 	private int level;
 	private DGraph graph;
 	private static List<Robot> robots;
 	private static List<Fruit> fruits;
-	
 
+	private static game_service game;
+	private static int timeOfGame;
 
-	public KML_Logger(int level, DGraph graph, List<Robot> robots, List<Fruit> fruits) {
-		this.level=level; 
+	public KML_Logger(int level, DGraph graph, List<Robot> robots, List<Fruit> fruits , game_service game) {
 		this.graph=new DGraph(graph);
 		this.robots=robots;
 		this.fruits=fruits;
+		this.game=game;
+		this.level=level;
+		if(game.timeToEnd()>30000)
+			this.timeOfGame=60000;
+		else
+			this.timeOfGame=30000;
+
+
+		Thread thr=new Thread(this);
+		thr.start();
+
+
+
 	}
 
 	public String createKMLfile() {
 		String file=
-				//first line
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
-				//second line
-				"<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\r\n"
-				+ "<Document>\n" + 
-				//name of the kml file
-				"<name>"+ this.level + ".kml</name>\r\n";
-		 
-		file+=addRobots();	
+						"<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\r\n"
+						+ "<Document>\n" + 
+						"<name>"+ this.level + ".kml</name>\r\n";
+
 		file+=addPoints();	
-				
-				
+		while(game.isRunning())
+			file+=updateRobots();	
+
 		file+=	"<Style id=\"orange-5px\">" +
 				"<LineStyle>" + 
 				//color
@@ -48,8 +59,8 @@ public class KML_Logger {
 				+ "<width>2</width>"+ 
 				"</LineStyle>" +
 				"</Style>" + 
-				
-				
+
+
 				"<Placemark>\r\n" + 
 				"<name>"+ this.level +"</name>\r\n" + 
 
@@ -83,14 +94,22 @@ public class KML_Logger {
 
 		return file;
 	}
-	
-	
 
-	public String addRobots() {
+
+
+	private String updateRobots() {
+
 		String str="";
-		
+		long time=(timeOfGame - game.timeToEnd())/1000;
+
 		for(Robot robot: robots) {
 			str+=	"<Placemark>\r\n"+
+
+					"<TimeSpan>\r\n"+
+					"<begin>"+time+"</begin>\r\n" + 
+					"<end>" + (time+1) + "</end>\r\n"+
+					"</TimeSpan>\r\n"+
+
 					"<Style id=\"mycustommarker\">\r\n" + 
 					"<IconStyle>\r\n" + 
 					"<Icon>\r\n" + 
@@ -103,13 +122,10 @@ public class KML_Logger {
 					"</Point>\r\n"+
 					"</Placemark>\r\n";
 		}
-		
-		
-		
 		return str;
 	}
-	
-	
+
+
 	private String addPoints() {
 		String str="";
 		for(Integer node : graph.get_Node_Hash().keySet()) {
@@ -120,8 +136,8 @@ public class KML_Logger {
 					"</Point>\r\n"+
 					"</Placemark>\r\n";
 		}
-		
-		
+
+
 		return str;
 	}
 
@@ -138,5 +154,11 @@ public class KML_Logger {
 			System.out.println("ERR: failing to save this list.");
 		}
 	}//SaveToFile
+
+	@Override
+	public void run() {
+		createKMLfile();
+
+	}
 
 }

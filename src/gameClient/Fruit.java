@@ -37,7 +37,7 @@ public class Fruit {
     }
 
     public Point3D getLocation() {
-        return new Point3D(this._pos);
+        return this._pos;
     }
 
     public void set_pos(Point3D _pos) {
@@ -73,7 +73,7 @@ public class Fruit {
     }
 
     public String toString() {
-        return this.toJSON();
+        return "Fruit:\tOn edge=["+this.getEdge().getSrc()+","+this.getEdge().getDest()+"]"+"\tValue="+this.getValue();
     }
 
     public String toJSON() {

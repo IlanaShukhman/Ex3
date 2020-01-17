@@ -109,6 +109,9 @@ public class SimpleGameClient {
 		System.out.println(gameServer.get_data());
 		// should be a Thread!!!
 		
+		
+		//KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
+		
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
 
@@ -153,7 +156,7 @@ public class SimpleGameClient {
 
 					dest = nextNodeAuto(graph, src, robots.get(i));
 					game.chooseNextEdge(rid, dest);
-					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
 
 					System.out.println(robot.toJSON());
 				}//if
@@ -247,7 +250,7 @@ public class SimpleGameClient {
 		//Convert the nodes path  to Keys path
 		List<Integer> path_key=g_Algo.NodeToKeyConverter(path);
 		path_key.add(close_fruit.getEdge().getDest());
-		System.out.println("Path: "+path_key+" Path weight: "+g.getNode(close_fruit.getEdge().getSrc()).getWeight());
+		System.out.println("Robot id:"+robot.get_id()+" Path: "+path_key+" Path weight: "+g.getNode(close_fruit.getEdge().getSrc()).getWeight());
 
 		if(path_key.size()<2)
 		{
@@ -256,8 +259,8 @@ public class SimpleGameClient {
 		int dest=path_key.get(1);
 		if(g.getNode(dest).getInfo().equals(String.valueOf(src)))
 		{
-			System.out.println("Repeating on the same edge");
-			System.out.println("SRC: "+src+" DEST: "+close_fruit.getEdge().getSrc()+" PATH: "+g_Algo.BFS_PATH(src, close_fruit.getEdge().getSrc()));
+			//System.out.println("Repeating on the same edge");
+			//System.out.println("SRC: "+src+" DEST: "+close_fruit.getEdge().getSrc()+" PATH: "+g_Algo.BFS_PATH(src, close_fruit.getEdge().getSrc()));
 			//return nextNodeRandom(g, src,dest);
 			//return changeDirection(g, src,dest, close_fruit);
 		}//if
@@ -291,7 +294,11 @@ public class SimpleGameClient {
 		return target;
 	}//choose_Close_Fruites
 
-
+	/**
+	 * Check if this fruit is on target of some another robot
+	 * @param f
+	 * @return
+	 */
 	private static boolean alreadyTarget(Fruit f) {
 		for (Robot r : robots) {
 			if(r.getTarget().equals(f))

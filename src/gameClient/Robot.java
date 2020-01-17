@@ -26,7 +26,7 @@ public class Robot {
 
 	public void setTarget(Fruit target) {
 		this.target = target;
-		System.out.println("set target");
+		System.out.println("Robot id:"+this._id+" set target:"+this.target);
 	}
 
 
@@ -168,7 +168,7 @@ public class Robot {
 
 	@Override
 	public String toString() {
-		return toJSON();
+		return "Robot:\tId="+this._id+"\tGrade="+this.get_value()+"\tLoc=["+this._src+","+this._dest+"]";
 	}
 
 	
