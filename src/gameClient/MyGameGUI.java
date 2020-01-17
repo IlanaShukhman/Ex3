@@ -225,14 +225,15 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 		StdDraw.setPenColor(Color.BLACK);
 		
-		drawGameInfo();
-		//StdDraw.picture(500,300, this.map+".png", 1000, 600);
+		
+		StdDraw.picture(500,300, this.map+".png", 1000, 600);
 		drawVer();
 		drawEdges();
 		drawFruits();
 		drawRobots();
 		if(isRunning==false)
 			drawEndFrame();
+		drawGameInfo();
 		StdDraw.show();
 
 	}//Draw
@@ -250,9 +251,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	 * Drawing the score of the game
 	 */
 	private void drawGameInfo() {
-		StdDraw.text(220,590.0 , "Score: "+Double.toString(this.score));
-		StdDraw.text(40.0,590.0 , "Level: "+Double.toString(this.level));
-		StdDraw.text(130.0,590.0 , "Time: "+Double.toString(this.timeToEnd));
+		StdDraw.text(220,580.0 , "Score: "+Double.toString(this.score));
+		StdDraw.text(40.0,580.0 , "Level: "+Double.toString(this.level));
+		StdDraw.text(130.0,580.0 , "Time: "+Double.toString(this.timeToEnd));
 	}//drawScore
 
 	/**
