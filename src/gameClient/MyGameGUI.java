@@ -90,7 +90,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		this.selectedNode=-1;
 		this.selectedRobot=null;
 		
-		KML_Logger kmlFile=new KML_Logger(this.level, this.graph);
+		KML_Logger kmlFile=new KML_Logger(this.level, this.graph, robots, fruits);
 		kmlFile.createKMLfile();
 		
 		
