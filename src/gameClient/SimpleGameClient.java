@@ -69,7 +69,7 @@ public class SimpleGameClient {
 		GameServer gameServer=new GameServer();
 		gameServer.initFromJson(info);
 		int numRobots = gameServer.get_robots_number();
-		
+
 		System.out.println(gameServer);
 		System.out.println(g);
 
@@ -110,8 +110,9 @@ public class SimpleGameClient {
 		// should be a Thread!!!
 		
 		
-		//KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
-		
+		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
+
+
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
 
@@ -158,6 +159,8 @@ public class SimpleGameClient {
 					game.chooseNextEdge(rid, dest);
 					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
 
+
+					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 					System.out.println(robot.toJSON());
 				}//if
 
@@ -175,10 +178,25 @@ public class SimpleGameClient {
 						game.chooseNextEdge(rid, d);
 					}
 				}//else if
+
+				updateSrc();	
+
 				updateFruites(game);
+
 			}//for
 		}//if
 	}//moveRobots
+	private static void updateSrc() {
+		for(Robot robot: robots) {
+			for(Integer node : gameGraph.get_Node_Hash().keySet()) {
+				if(isClose(robot.get_pos(), gameGraph.getNode(node).getLocation())){
+					robot.set_src(node);
+				}
+			}
+		}
+
+	}
+
 	/**
 	 * Pop up window to determine which scenario the client wants
 	 * @return string of the chosen value
@@ -201,6 +219,9 @@ public class SimpleGameClient {
 	 */
 	private static void updateFruites(game_service game) {
 		List<String> fruitInformation=game.getFruits();
+
+
+
 		for (int i = 0; i < fruitInformation.size(); i++) {
 			Fruit fruit=new Fruit();
 			fruit.initFromJson(fruitInformation.get(i));
@@ -343,5 +364,10 @@ public class SimpleGameClient {
 	}
 
 
+	private static boolean isClose(Point3D node1, Point3D node2) {
+		if(node1.distance2D(node2)<0.0005)
+			return true;
+		return false;
+	}
 
 }

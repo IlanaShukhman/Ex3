@@ -372,7 +372,6 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		if(state==0) {//means it is manual
 			double x= reUpdateX(StdDraw.mouseX());
 			double y= reUpdateY(StdDraw.mouseY());
-			System.out.println("X: "+StdDraw.mouseX()+" Y:"+StdDraw.mouseX());
 			Point3D p=new Point3D(x,y);
 			for(Integer node : graph.get_Node_Hash().keySet()) {
 				Point3D loc=graph.get_Node_Hash().get(node).getLocation();
