@@ -21,14 +21,14 @@ public class Ex3_Algo {
 	{
 		Point3D mid=fruit.getLocation();
 		Collection<node_data> nodes=g.getV();
-		for (node_data node : nodes) {
-			Collection<edge_data> edges=g.getE(node.getKey());
+		for (node_data src : nodes) {
+			Collection<edge_data> edges=g.getE(src.getKey());
 			for (edge_data edge : edges) {
-				Point3D start=node.getLocation();
+				Point3D start=src.getLocation();
 				node_data dest=g.getNode(edge.getDest());
 				Point3D end=dest.getLocation();
 				//Check if it's on the right edge by definition and math
-				if(fruitOnEdge(start, end, mid) && (( node.getKey()-dest.getKey()>0 && fruit.getType()==1)||( node.getKey()-dest.getKey()<0 &&fruit.getType()==-1)))
+				if(fruitOnEdge(start, end, mid) && ((dest.getKey()- src.getKey()>0 && fruit.getType()==1)||( dest.getKey()-src.getKey()<0 &&fruit.getType()==-1)))
 				{
 					System.out.println("FRUIT: SRC="+edge.getSrc()+" DEST="+edge.getDest());
 					return edge;
