@@ -53,7 +53,7 @@ public class SimpleGameClient {
 		//Choose scenario num
 		Ex3_Algo ex3_alg=new Ex3_Algo();
 		//Create Graph
-		String s=chooseFromList();
+		String s=chooseScenarioFromList();
 		int scenario_num =Integer.valueOf(s);
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
@@ -100,6 +100,7 @@ public class SimpleGameClient {
 			r.initFromJson(game.getRobots().get(i));
 			robots.add(i, r);
 			robots.get(i).setTarget(fruits.get(i));
+			System.out.println(r);
 		}//for
 		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
@@ -116,7 +117,7 @@ public class SimpleGameClient {
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
 
-		}
+		}//while
 
 
 		gui.setIsRunning(false);
@@ -201,7 +202,7 @@ public class SimpleGameClient {
 	 * Pop up window to determine which scenario the client wants
 	 * @return string of the chosen value
 	 */
-	private static String chooseFromList() {
+	private static String chooseScenarioFromList() {
 		String[] choices = new String [24];
 		for (int i = 0; i < choices.length; i++) {
 			choices[i]=String.valueOf(i);

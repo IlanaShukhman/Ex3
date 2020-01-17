@@ -45,7 +45,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	private List<Robot> robots;
 	private List<Fruit> fruits;
-
+	//Manu bar information
 	private double score;
 	private long timeToEnd;
 	private int level;
@@ -89,19 +89,11 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		this.state=JOptionPane.showConfirmDialog(this, "Manual?");
 		this.selectedNode=-1;
 		this.selectedRobot=null;
-		
-		
-		
-		
 
 		Thread t=new Thread(this);
 		t.start();
 
 	}//Graph_GUI
-
-
-
-
 
 	public void initGUI() {
 		draw();
@@ -257,12 +249,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	 * Drawing the score of the game
 	 */
 	private void drawGameInfo() {
-		StdDraw.text(220,580.0 , "Score: "+Double.toString(this.score));
-		StdDraw.text(40.0,580.0 , "Level: "+Double.toString(this.level));
-		StdDraw.text(130.0,580.0 , "Time: "+Double.toString(this.timeToEnd));
-//		StdDraw.text(230.0, 570.0 , "Score: "+Double.toString(this.score));
-//		StdDraw.text(50.0, 570.0 , "Level: "+Double.toString(this.level));
-//		StdDraw.text(140.0, 570.0 , "Time: "+Double.toString(this.timeToEnd));
+		StdDraw.text(230.0, 570.0 , "Score: "+Double.toString(this.score));
+		StdDraw.text(50.0, 570.0 , "Level: "+Double.toString(this.level));
+		StdDraw.text(140.0, 570.0 , "Time: "+Double.toString(this.timeToEnd));
 	}//drawScore
 
 	/**
@@ -428,7 +417,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		String g = game.getGraph();
 		DGraph gameGraph = new DGraph();
 		gameGraph.init(g);
-		//		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
+		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
 	}
 
 }
