@@ -38,11 +38,11 @@ import algorithms.*;;
  */
 public class SimpleGameClient {
 	private static List<Robot> robots;
+	private static List<Robot> robots_Priority;
 	private static List<Fruit> fruits;
 	private static MyGameGUI gui;
 	private static DGraph gameGraph;
 	private static Graph_Algo g_algo;
-
 
 	public static void main(String[] a) {
 		test1();
@@ -51,8 +51,14 @@ public class SimpleGameClient {
 	public static void test1() {
 		//Choose scenario num
 		Ex3_Algo ex3_alg=new Ex3_Algo();
+
 		//Create Graph
 		String s=chooseScenarioFromList();
+
+		//if the user decided to cancel
+		if(s==null)
+			return;
+
 		int scenario_num =Integer.valueOf(s);
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
@@ -62,7 +68,7 @@ public class SimpleGameClient {
 		//Create the lists of robots and fruits
 		robots=new ArrayList<Robot>();
 		fruits=new ArrayList<Fruit>();
-
+		robots_Priority=new ArrayList<Robot>();
 		//Game Server information such as:fruites,moves,grade,robots,graph,data
 		String info = game.toString();
 		GameServer gameServer=new GameServer();
@@ -81,6 +87,7 @@ public class SimpleGameClient {
 			fruit.setEdge(edge);
 			fruits.add(fruit);
 		}//for
+
 		Comparator<Fruit> compare=new Comparator<Fruit>() {
 
 			@Override
@@ -89,6 +96,8 @@ public class SimpleGameClient {
 				return dp;
 			}
 		};
+
+
 		fruits.sort(compare);
 		System.out.println(fruits.toString());
 
@@ -101,7 +110,7 @@ public class SimpleGameClient {
 			robots.get(i).setTarget(fruits.get(i));
 		}//for
 		System.out.println(robots.toString());
-
+		robots_Priority.addAll(robots);
 		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
 		gui.setIsRunning(true);
@@ -116,11 +125,9 @@ public class SimpleGameClient {
 
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
-			
-
 		}//while
 
-
+		System.out.println(robots);
 		gui.setIsRunning(false);
 		String results = game.toString();
 		System.out.println("Game Over: "+results);
@@ -153,43 +160,50 @@ public class SimpleGameClient {
 				Point3D pos = robot.get_pos();
 				robots.get(i).initFromJson(robot_json);;
 				//if it is automatic
+
 				if(dest==-1 && gui.getState()==1) {
-					dest = nextNodeAuto(graph, src, robots.get(i));
-					game.chooseNextEdge(rid, dest);
-					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
-					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-					System.out.println(robot.toJSON());
-				}//if
 
-				//if it is manual
-				else if(gui.getState()==0) {
-					robot=gui.getSelectedRobot();
-					dest=gui.getSelectedNode();
+					if(gui.getState()==1) {
 
-					//after the user clicked 
-					if(robot!=null && dest!=-1) {
-						if(okayToGo(dest)) {
-							robot.set_dest(dest);		
+
+						dest = nextNodeAuto(graph, src, robots.get(i));
+						robot.set_dest(dest);	
+						game.chooseNextEdge(rid, dest);
+						updateFruites(game,fruits);
+						System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
+						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+						System.out.println(robot.toJSON());
+
+						//					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
+						//					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+						//					System.out.println(robot.toJSON());
+
+					}//if
+
+					//if it is manual
+					else if(gui.getState()==0) {
+						robot=gui.getSelectedRobot();
+						dest=gui.getSelectedNode();
+
+						//after the user clicked 
+						if(robot!=null && dest!=-1) {
+							if(okayToGo(dest)) {
+								robot.set_dest(dest);		
+							}
+							int d = nextNodeManual(src, robots.get(i).get_dest());
+							game.chooseNextEdge(rid, d);
+							updateFruites(game,fruits);
 						}
-						int d = nextNodeManual(graph, src, robots.get(i).get_dest());
-						game.chooseNextEdge(rid, d);
-					}
-				}//else if
-				updateFruites(game,fruits);
-				updateSrc();	
+					}//else if
+
+					
+					
+				}
+
 			}//for
 		}//if
 	}//moveRobots
-	private static void updateSrc() {
-		for(Robot robot: robots) {
-			for(Integer node : gameGraph.get_Node_Hash().keySet()) {
-				if(isClose(robot.get_pos(), gameGraph.getNode(node).getLocation())){
-					robot.set_src(node);
-				}
-			}
-		}
 
-	}
 
 	/**
 	 * Pop up window to determine which scenario the client wants
@@ -216,6 +230,7 @@ public class SimpleGameClient {
 		for (int i = 0; i < fruitInformation.size(); i++) {
 			fruits.get(i).initFromJson(fruitInformation.get(i));
 		}//for
+
 	}//updateFruites
 
 
@@ -245,44 +260,45 @@ public class SimpleGameClient {
 	 * @param src
 	 * @return
 	 */
-	private static int nextNodeAuto(graph g, int src,Robot robot) {
-		//Finding the close fruit
+	private static int nextNodeAuto(graph g, int src,Robot robot) {	
 		Fruit close_fruit=choose_Close_Fruites(robot,g);
-		//Fetching edge to fruit
 		Ex3_Algo algo=new Ex3_Algo();
 		close_fruit.setEdge(algo.fetchFruitToEdge(close_fruit, g));
-		Graph_Algo g_Algo=new Graph_Algo(g);
-		List<node_data> path=g_Algo.shortestPath(src, close_fruit.getEdge().getSrc());
-		path.add(g.getNode(close_fruit.getEdge().getDest()));
-		if(path.size()<2)
-		{
-			return nextNodeRandom(g, src);
-		}//while
+		g_algo=new Graph_Algo(g);
+		List<node_data> path=g_algo.shortestPath(src, close_fruit.getEdge().getDest());
 		int dest=path.get(1).getKey();
-//		if(g.getNode(dest).getInfo().equals(String.valueOf(src)))
-//		{
-//			//return changeDirection(g, src,dest, close_fruit);
-//		}//if
-
+		//		if(g.getNode(dest).getInfo().equals(String.valueOf(src)))
+		//		{
+		//			//return changeDirection(g, src,dest, close_fruit);
+		//		}//if
+//		if(src==dest)
+//			return close_fruit.getEdge().getSrc();
+		System.out.println("PATH:**"+path);
 		g.getNode(dest).setInfo(String.valueOf(src));
 		robot.setTarget(close_fruit);
 		return dest;
 	}
 
+
+	/**
+	 * Choosing the fruit with the lowest distanse and highest value by proportion 
+	 * @param robot
+	 * @param g
+	 * @return
+	 */
 	private static Fruit choose_Close_Fruites(Robot robot,graph g) {
+		
 		int src=robot.get_src();
 		float shortestpath=0;
 		g_algo=new Graph_Algo(g);
 		Fruit target=robot.getTarget();
-		g_algo.BFS(src);
-		//float min=(float) (g_algo.shortestPathDist(src,target.getEdge().getSrc())/target.getValue());
-		float min=(float) (float) ((g.getNode(target.getEdge().getSrc()).getWeight())+target.getEdge().getWeight()/target.getValue());
+		float min=(float) ((g_algo.shortestPathDist(src,target.getEdge().getSrc())+g.getNode(target.getEdge().getSrc()).getLocation().distance2D(target.getLocation()))/target.getValue());
 		for (Fruit fruit : fruits) {
-			if(!alreadyTargeted(fruit)) 
+			if(alreadyTargeted(fruit)==-1 || (robot.get_id()!=robots.get(alreadyTargeted(fruit)).get_id() && priority(robot)) )
 			{
-				//shortestpath=(float) (float) ((g_algo.shortestPathDist(src,fruit.getEdge().getSrc()))/fruit.getValue());
-				shortestpath=(float) ((g.getNode(fruit.getEdge().getSrc()).getWeight())+fruit.getEdge().getWeight()/fruit.getValue());
-				if(min>shortestpath)
+				double innerDistance=g.getNode(fruit.getEdge().getSrc()).getLocation().distance3D(fruit.getLocation());
+				shortestpath=(float) (float) ((g_algo.shortestPathDist(src,fruit.getEdge().getSrc())+innerDistance)/fruit.getValue());
+				if(min>shortestpath )
 				{
 					System.out.println("Change the min was: "+min+" Now: "+shortestpath);
 					min=shortestpath;
@@ -290,20 +306,33 @@ public class SimpleGameClient {
 				}//if
 			}//else
 		}//for
+		robot.setTarget(target);
 		return target;
 	}//choose_Close_Fruites
+/**
+ * 
+ * @param robot
+ * @return
+ */
+	private static boolean priority(Robot robot) {
+		for (Robot r : robots) {
+			if(r.get_id()!=robot.get_id() && robot.get_speed()>=r.get_speed())
+				return false;
+		}//for
+		return true;
+	}//true
 
 	/**
 	 * Check if this fruit is on target of some another robot
 	 * @param f
 	 * @return
 	 */
-	private static boolean alreadyTargeted(Fruit f) {
-		for (Robot r : robots) {
-			if(r.getTarget().equals(f))
-				return true;
+	private static int alreadyTargeted(Fruit f) {
+		for (int i=0;i<robots.size();i++) {
+			if(robots.get(i).getTarget().equals(f))
+				return i;
 		}//for
-		return false;
+		return -1;
 	}//alreadyTarget
 
 	/**
@@ -313,6 +342,8 @@ public class SimpleGameClient {
 	 * @return false if there is a robot on dest - else, true, and it is okay to go there.
 	 */
 	private static boolean okayToGo(int dest) {
+		if(robots.size()==1)
+			return true;
 		for(Robot robot : robots) {
 			if(gameGraph.get_Node_Hash().get(dest).getLocation().equals(robot.get_pos())) {
 				return false;
@@ -322,11 +353,16 @@ public class SimpleGameClient {
 
 		return true;
 	}
-
-	private static int nextNodeManual(graph g, int src, int dest) {
+	/**
+	 * Returns the robot's next node in a manual mode.
+	 * @param src is the robot's source node
+	 * @param dest is the destination node
+	 * @return the next node in the robot's path to the dest node.
+	 */
+	private static int nextNodeManual(int src, int dest) {
 		if(dest==-1)
 			return -1;
-		g_algo=new Graph_Algo(g);
+		g_algo=new Graph_Algo(gameGraph);
 		List<node_data> path=g_algo.shortestPath(src, dest);
 		List<Integer> path_key=g_algo.NodeToKeyConverter(path);
 
@@ -336,16 +372,7 @@ public class SimpleGameClient {
 		else if(path_key.size()==1) {
 			return path_key.get(0);
 		}
-
-
 		return path_key.get(1);
-	}
-
-
-	private static boolean isClose(Point3D node1, Point3D node2) {
-		if(node1.distance2D(node2)<0.0005)
-			return true;
-		return false;
 	}
 
 }

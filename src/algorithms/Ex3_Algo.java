@@ -30,7 +30,7 @@ public class Ex3_Algo {
 				//Check if it's on the right edge by definition and math
 				if(fruitOnEdge(start, end, mid) && ((dest.getKey()- src.getKey()>0 && fruit.getType()==1)||( dest.getKey()-src.getKey()<0 &&fruit.getType()==-1)))
 				{
-					System.out.println("FRUIT: SRC="+edge.getSrc()+" DEST="+edge.getDest());
+					System.out.println("FETCH FRUIT TO EDGE, FRUIT: SRC="+edge.getSrc()+" DEST="+edge.getDest()+" TYPE="+fruit.getType());
 					return edge;
 				}//if
 			}//for

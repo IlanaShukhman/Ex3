@@ -46,17 +46,18 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	private List<Robot> robots;
 	private List<Fruit> fruits;
 	//Manu bar information
+	private int moves;
 	private double score;
 	private long timeToEnd;
 	private int level;
 	private boolean isRunning;	
-
+	private String map;
 	//this is used to determine if it is automatic or manual
 	private int state;
 	private Robot selectedRobot;
 	private int selectedNode;
 
-	private String map;
+	
 
 
 	/**
@@ -84,7 +85,8 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		this.level=0;
 		this.timeToEnd=0;
 		this.isRunning=false;
-
+		this.moves=0;
+		
 		StdDraw.setCanvasSize(width, height);	
 		this.state=JOptionPane.showConfirmDialog(this, "Manual?");
 		this.selectedNode=-1;
@@ -94,7 +96,10 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		t.start();
 
 	}//Graph_GUI
-
+	public void setMoves(int numOfMoves)
+	{
+		this.moves=numOfMoves;
+	}
 	public void initGUI() {
 		draw();
 	}//initGui
@@ -167,7 +172,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 				double weight=graph.get_Edge_Hash().get(v).get(u).getWeight();
 				weight = (double) ((int) (weight * 10)) / (10);
 
-				StdDraw.text(x1*3/4 + x0*1/4, y1*3/4 + y0*1/4, Double.toString(weight));
+				//StdDraw.text(x1*3/4 + x0*1/4, y1*3/4 + y0*1/4, Double.toString(weight));
 			}//for
 		}//for
 	}//draw edges
@@ -182,9 +187,14 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			double xr=updateX(robot.get_pos().x());
 			double yr=updateY(robot.get_pos().y());
 
-			StdDraw.filledCircle(xr, yr, 10);
+			StdDraw.circle(xr, yr, 10);
+			StdDraw.text(xr, yr-20,"Grade:"+String.valueOf(robot.get_value()));
+			StdDraw.text(xr, yr-40,"Speed:"+String.valueOf(robot.get_speed()));
 			if(robot.equals(selectedRobot))
+			{
 				StdDraw.circle(xr,yr,12);
+				
+			}//if
 
 			i++;
 		}//for
@@ -221,10 +231,6 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 		StdDraw.setPenColor(Color.BLACK);
 		
-
-		
-		//StdDraw.picture(500,300, this.map+".png", 1000, 600);
-
 		drawVer();
 		drawEdges();
 		drawFruits();
@@ -252,6 +258,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		StdDraw.text(230.0, 570.0 , "Score: "+Double.toString(this.score));
 		StdDraw.text(50.0, 570.0 , "Level: "+Double.toString(this.level));
 		StdDraw.text(140.0, 570.0 , "Time: "+Double.toString(this.timeToEnd));
+		StdDraw.text(330.0, 570.0 , "Moves: "+Double.toString(this.moves));
 	}//drawScore
 
 	/**

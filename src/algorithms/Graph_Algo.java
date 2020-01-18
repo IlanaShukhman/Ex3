@@ -151,19 +151,7 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 		}//while
 	}//BFS
 	
-	public List<Integer> BFS_PATH(int src_key,int dest_key)
-	{
-		List<Integer> path=new ArrayList<Integer>();
-		BFS(src_key);
-		while(dest_key!=src_key)
-		{
-			path.add(dest_key);
-			node_data node = Graph.getNode(dest_key);
-			dest_key=this.predessesors.get(node).getKey();
-			
-		}//while
-		return reverse(path);
-	}//BFS_PATH
+	
 	/**
 	 * Pass all the nodes and color them to white, predessesors to null and distanse to infinity
 	 */
@@ -369,23 +357,47 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 	public List<node_data> shortestPath(int src, int dest) {
 		double num=shortestPathDist(src, dest);
 		List<node_data> path=new ArrayList<node_data>();
-		if(this.Graph.getNode(dest).getWeight()==Integer.MAX_VALUE)
-			return path;
+		
 		node_data dst=this.Graph.getNode(dest);
 		path.add(dst);
+		if(this.Graph.getNode(dest).getWeight()==Integer.MAX_VALUE)
+			return path;
+		
+		
 		while(dst.getKey()!=src)
 		{
 			dst=predessesors.get(dst);
 			path.add(dst);
 		}//while
-		if(path.size()>0) {
+		if(path.size()>1) {
 			ArrayList<node_data> short_path=Reverse(path);
 			return short_path;
 		}//if
-		System.out.println("There isn't such a path");
-		return path;
-	}//shortestPath
+		else
+		{
+			path.add(this.Graph.getNode(src));
+			ArrayList<node_data> short_path=Reverse(path);
+			return short_path;
+		}//else
 
+	}//shortestPath
+	public List<Integer> BFS_PATH(int src_key,int dest_key)
+	{
+		List<Integer> path=new ArrayList<Integer>();
+		BFS(src_key);
+		if(src_key==dest_key)
+			return path;
+		path.add(src_key);
+		while(dest_key!=src_key)
+		{
+			path.add(dest_key);
+			node_data node = Graph.getNode(dest_key);
+			dest_key=this.predessesors.get(node).getKey();
+			
+		}//while
+		reverse(path);
+		return path;
+	}//BFS_PATH
 	/**
 	 * computes a relatively short path which visit each node in the targets List.
 	 * Note: this is NOT the classical traveling salesman problem,

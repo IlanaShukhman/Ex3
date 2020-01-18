@@ -18,6 +18,7 @@ public class Robot {
 	private int _dest;
 	private double _speed;
 	private Fruit target;
+	private int counter;
 
 	
 	public Fruit getTarget() {
@@ -27,6 +28,7 @@ public class Robot {
 	public void setTarget(Fruit target) {
 		this.target = target;
 		System.out.println("Robot id:"+this._id+" set target:"+this.target);
+		this.counter=0;
 	}
 
 
@@ -168,7 +170,7 @@ public class Robot {
 
 	@Override
 	public String toString() {
-		return "Robot:\tId="+this._id+"\tGrade="+this.get_value()+"\tLoc=["+this._src+","+this._dest+"]";
+		return "Robot:\tId="+this._id+"\tGrade="+this.get_value()+"\tLoc=["+this._src+","+this._dest+"]\n";
 	}
 
 	
