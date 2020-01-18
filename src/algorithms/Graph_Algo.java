@@ -371,7 +371,6 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 		List<node_data> path=new ArrayList<node_data>();
 		if(this.Graph.getNode(dest).getWeight()==Integer.MAX_VALUE)
 			return path;
-
 		node_data dst=this.Graph.getNode(dest);
 		path.add(dst);
 		while(dst.getKey()!=src)
