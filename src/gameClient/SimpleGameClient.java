@@ -52,8 +52,14 @@ public class SimpleGameClient {
 	public static void test1() {
 		//Choose scenario num
 		Ex3_Algo ex3_alg=new Ex3_Algo();
+		
 		//Create Graph
 		String s=chooseScenarioFromList();
+		
+		//if the user decided to cancel
+		if(s==null)
+			return;
+		
 		int scenario_num =Integer.valueOf(s);
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
@@ -82,6 +88,7 @@ public class SimpleGameClient {
 			fruit.setEdge(edge);
 			fruits.add(fruit);
 		}//for
+		
 		Comparator<Fruit> compare=new Comparator<Fruit>() {
 
 			@Override
@@ -90,6 +97,8 @@ public class SimpleGameClient {
 				return dp;
 			}
 		};
+		
+		
 		fruits.sort(compare);
 		System.out.println(fruits.toString());
 
@@ -109,8 +118,8 @@ public class SimpleGameClient {
 		gui.setMap(gameServer.get_data());
 		System.out.println(gameServer.get_data());
 		// should be a Thread!!!
-		
-		
+
+
 		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
 
 
@@ -154,15 +163,14 @@ public class SimpleGameClient {
 				robots.get(i).set_pos(pos);
 
 				//if it is automatic
-				if(dest==-1 && gui.getState()==1) {
+				if(gui.getState()==1) {
 
 					dest = nextNodeAuto(graph, src, robots.get(i));
+					robot.set_dest(dest);	
 					game.chooseNextEdge(rid, dest);
-					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
-
-
-					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-					System.out.println(robot.toJSON());
+					//					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
+					//					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+					//					System.out.println(robot.toJSON());
 				}//if
 
 				//if it is manual
@@ -175,28 +183,18 @@ public class SimpleGameClient {
 						if(okayToGo(dest)) {
 							robot.set_dest(dest);		
 						}
-						int d = nextNodeManual(graph, src, robots.get(i).get_dest());
+						int d = nextNodeManual(src, robots.get(i).get_dest());
 						game.chooseNextEdge(rid, d);
 					}
 				}//else if
 
-				updateSrc();	
-
 				updateFruites(game);
+
 
 			}//for
 		}//if
 	}//moveRobots
-	private static void updateSrc() {
-		for(Robot robot: robots) {
-			for(Integer node : gameGraph.get_Node_Hash().keySet()) {
-				if(isClose(robot.get_pos(), gameGraph.getNode(node).getLocation())){
-					robot.set_src(node);
-				}
-			}
-		}
 
-	}
 
 	/**
 	 * Pop up window to determine which scenario the client wants
@@ -221,13 +219,12 @@ public class SimpleGameClient {
 	private static void updateFruites(game_service game) {
 		List<String> fruitInformation=game.getFruits();
 
-
-
 		for (int i = 0; i < fruitInformation.size(); i++) {
 			Fruit fruit=new Fruit();
 			fruit.initFromJson(fruitInformation.get(i));
 			fruits.get(i).set_pos(fruit.getLocation());
 		}//for
+
 	}//updateFruites
 
 
@@ -293,6 +290,8 @@ public class SimpleGameClient {
 
 	}
 
+
+	//NEEDS DOCUMANTATION!
 	private static Fruit choose_Close_Fruites(Robot robot,graph g) {
 		int src=robot.get_src();
 		float min=Float.MAX_VALUE;
@@ -336,6 +335,8 @@ public class SimpleGameClient {
 	 * @return false if there is a robot on dest - else, true, and it is okay to go there.
 	 */
 	private static boolean okayToGo(int dest) {
+		if(robots.size()==1)
+			return true;
 		for(Robot robot : robots) {
 			if(gameGraph.get_Node_Hash().get(dest).getLocation().equals(robot.get_pos())) {
 				return false;
@@ -345,11 +346,16 @@ public class SimpleGameClient {
 
 		return true;
 	}
-
-	private static int nextNodeManual(graph g, int src, int dest) {
+	/**
+	 * Returns the robot's next node in a manual mode.
+	 * @param src is the robot's source node
+	 * @param dest is the destination node
+	 * @return the next node in the robot's path to the dest node.
+	 */
+	private static int nextNodeManual(int src, int dest) {
 		if(dest==-1)
 			return -1;
-		g_algo=new Graph_Algo(g);
+		g_algo=new Graph_Algo(gameGraph);
 		List<node_data> path=g_algo.shortestPath(src, dest);
 		List<Integer> path_key=g_algo.NodeToKeyConverter(path);
 
@@ -359,16 +365,7 @@ public class SimpleGameClient {
 		else if(path_key.size()==1) {
 			return path_key.get(0);
 		}
-
-
 		return path_key.get(1);
-	}
-
-
-	private static boolean isClose(Point3D node1, Point3D node2) {
-		if(node1.distance2D(node2)<0.0005)
-			return true;
-		return false;
 	}
 
 }

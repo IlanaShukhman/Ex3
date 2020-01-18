@@ -1,5 +1,6 @@
 package gameClient;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,10 +49,10 @@ public class KML_Logger implements Runnable {
 						"<name>"+ this.level + ".kml</name>\r\n";
 
 		file+=addPoints();
-		
+
 		while(game.isRunning()) {
 			file+=updateFruits();
-			//file+=updateRobots();
+			file+=updateRobots();
 		}
 
 		file+=	"<Style id=\"orange-5px\">" +
@@ -97,9 +98,17 @@ public class KML_Logger implements Runnable {
 		return file;
 	}
 
+	/**
+	 * This method returns the position of the fruits each second.
+	 * If the fruit's type is -1, it will show a mountain. If the fruit's type is 1, it will show a boat.
+	 * This function is called every second. 
+	 * @return String str which contains the coordinates of the fruits. 
+	 */
 	private String updateFruits() {
 		String str="";
 		long time=(timeOfGame - game.timeToEnd())/1000;
+
+
 
 		for(Fruit fruit: fruits) {
 			str+=	"<Placemark>\r\n"+
@@ -112,13 +121,13 @@ public class KML_Logger implements Runnable {
 					"<Style id=\"mycustommarker\">\r\n" + 
 					"<IconStyle>\r\n" + 
 					"<Icon>\r\n" ; 
-					
+
 			if(fruit.getType()==-1) {
 				str+=	"<href>http://maps.google.com/mapfiles/kml/shapes/mountains.png</href>";
 			}
 			else
 				str+=	"<href>http://maps.google.com/mapfiles/kml/shapes/sailing.png</href>";
-			
+
 			str+=	"</Icon>\r\n" + 
 					"</IconStyle>\r\n" + 
 					"</Style>\r\n"+
@@ -130,11 +139,18 @@ public class KML_Logger implements Runnable {
 		return str;
 	}
 
-
+	/**
+	 * This method returns the position of the robots each second.
+	 * This function is called every second. 
+	 * @return String str which contains the coordinates of the robots. 
+	 */
 	private String updateRobots() {
 
 		String str="";
 		long time=(timeOfGame - game.timeToEnd())/1000;
+
+		String[] color= {"ff0000ff","ffff0000","ff800080","ff00ffff","ffff00ff"};
+		int i=0;
 
 		for(Robot robot: robots) {
 			str+=	"<Placemark>\r\n"+
@@ -143,6 +159,8 @@ public class KML_Logger implements Runnable {
 					"<begin>"+time+"</begin>\r\n" + 
 					"<end>" + (time+1) + "</end>\r\n"+
 					"</TimeSpan>\r\n"+
+
+					"<color>"+color[i]+"</color>"+
 
 					"<Style id=\"mycustommarker\">\r\n" + 
 					"<IconStyle>\r\n" + 
@@ -155,11 +173,17 @@ public class KML_Logger implements Runnable {
 					"<coordinates>"+ robot.get_pos() + "</coordinates>\r\n"+  
 					"</Point>\r\n"+
 					"</Placemark>\r\n";
+			
+			i++;
 		}
 		return str;
 	}
 
-
+	/**
+	 * this method adds the vertices in the graph to the kml file.
+	 * this function is called only once.
+	 * @return the position to the vertices in a kml format.
+	 */
 	private String addPoints() {
 		String str="";
 		for(Integer node : graph.get_Node_Hash().keySet()) {
@@ -174,7 +198,12 @@ public class KML_Logger implements Runnable {
 
 		return str;
 	}
-
+	/**
+	 * This method receives a text in kml format, and saves it as a file.
+	 * The file's name is the level and a .kml
+	 * @param file
+	 * @throws IOException
+	 */
 	public void saveToFile(String file) throws IOException {
 		try {
 			File f=new File(this.level+".kml");

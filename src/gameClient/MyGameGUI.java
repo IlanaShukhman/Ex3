@@ -221,10 +221,6 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 		StdDraw.setPenColor(Color.BLACK);
 		
-
-		
-		//StdDraw.picture(500,300, this.map+".png", 1000, 600);
-
 		drawVer();
 		drawEdges();
 		drawFruits();
