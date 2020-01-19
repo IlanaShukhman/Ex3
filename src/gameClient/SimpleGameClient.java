@@ -164,7 +164,7 @@ public class SimpleGameClient {
 				int dest = robot.get_dest();
 				Point3D pos = robot.get_pos();
 				robots.get(i).set_pos(pos);
-				robots.get(i).initFromJson(robot_json);
+				//robots.get(i).initFromJson(robot_json);
 				//if it is automatic
 				if(gui.getState()==1) {
 
@@ -190,6 +190,7 @@ public class SimpleGameClient {
 					}
 				}//else if
 			}//for
+			
 			updateFruites(game);
 		}//if
 	}//moveRobots
