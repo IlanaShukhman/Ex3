@@ -1,14 +1,16 @@
 package gameClient;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import org.json.JSONObject;
 
-import dataStructure.edge_data;
-import dataStructure.node_data;
-import oop_dataStructure.oop_graph;
 import utils.Point3D;
+
+/**
+ * This class represents a Robot on a graph. It has an id, a position on the graph,
+ * value, speed, and a fruit target. It also has a source node and a destination node.
+ * @author Ilana
+ *
+ */
 
 public class Robot {
 	private int _id;
@@ -19,7 +21,7 @@ public class Robot {
 	private double _speed;
 	private Fruit target;
 	private int counter;
-
+	
 	
 	public Fruit getTarget() {
 		return target;

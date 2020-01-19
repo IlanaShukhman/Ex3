@@ -1,33 +1,25 @@
 package algorithms;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 
 
 import dataStructure.DGraph;
-import dataStructure.EdgeData;
-import dataStructure.NodeData;
 import dataStructure.edge_data;
 import dataStructure.graph;
 import dataStructure.node_data;
-import gui.Graph_GUI;
 /**
  * This class represents the set of graph-theory algorithms,
  * such as: isConnected, which should return true if there is a path between every node
@@ -638,13 +630,5 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 		}//for
 		return keys;
 	}//NodeToKeyConverter
-	/**
-	 * This function will pop the graph presentation
-	 */
-	public void show() {
-		Graph_GUI window=new Graph_GUI(this.Graph);
-		window.setVisible(true);
-	}//show
-
 
 }
