@@ -51,16 +51,6 @@ class Graph_AlgoTest {
 		assertEquals(EXPECTED, graphAlgo.getGraph(),"ERR:Failing saving to init and save to file correctly.");
 	}
 
-
-	@Test
-	void testSaveAndInit() {
-		graph_Factory();
-		this.graphAlgo= new Graph_Algo((DGraph) this.EXPECTED);
-		this.graphAlgo.save("saveTest.txt");
-		Graph_Algo expected=new Graph_Algo();
-		expected.init("saveTest.txt");
-		//assertEquals(expected, graphAlgo,"ERR:Failing saving to init and save to file correctly.");
-	}//testSave
 	@Test
 	void equalsTest() {
 		graph_Factory();

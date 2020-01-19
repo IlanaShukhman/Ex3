@@ -51,14 +51,14 @@ public class SimpleGameClient {
 	public SimpleGameClient() {
 		//Choose scenario num
 		Ex3_Algo ex3_alg=new Ex3_Algo();
-		
+
 		//Create Graph
 		String s=chooseScenarioFromList();
-		
+
 		//if the user decided to cancel
 		if(s==null)
 			return;
-		
+
 		int scenario_num =Integer.valueOf(s);
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
@@ -87,7 +87,7 @@ public class SimpleGameClient {
 			fruit.setEdge(edge);
 			fruits.add(fruit);
 		}//for
-		
+
 		Comparator<Fruit_Client> compare=new Comparator<Fruit_Client>() {
 
 			@Override
@@ -96,8 +96,8 @@ public class SimpleGameClient {
 				return dp;
 			}
 		};
-		
-		
+
+
 		fruits.sort(compare);
 		System.out.println(fruits.toString());
 
@@ -110,22 +110,24 @@ public class SimpleGameClient {
 			robots.get(i).setTarget(fruits.get(i));
 			System.out.println(r);
 		}//for
+
 		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
 		gui.setIsRunning(true);
 		gui.setLevel(scenario_num);
 		gui.setMap(gameServer.get_data());
 		System.out.println(gameServer.get_data());
-		// should be a Thread!!!
 
 
 		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
+		try {
+			while(game.isRunning()) {
+				moveRobots(game, gameGraph);
+			}//while
+		}
+		catch(Exception e) {
 
-
-		while(game.isRunning()) {
-			moveRobots(game, gameGraph);
-
-		}//while
+		}
 
 
 		gui.setIsRunning(false);
@@ -151,7 +153,7 @@ public class SimpleGameClient {
 				String info = game.toString();
 				GameServer_Client gameServer=new GameServer_Client();
 				gameServer.initFromJson(info);
-				
+
 				gui.setScore(gameServer.get_grade());
 				gui.setMoves(gameServer.get_number_of_moves());
 				String robot_json = log.get(i);
@@ -165,7 +167,7 @@ public class SimpleGameClient {
 				robots.get(i).initFromJson(robot_json);
 				//if it is automatic
 				if(gui.getState()==1) {
-					
+
 					Automatic_Movement am = new Automatic_Movement(g_algo, fruits, robots);
 					dest = am.nextNodeAuto(graph, src, robots.get(i));
 					robot.set_dest(dest);	
@@ -177,7 +179,7 @@ public class SimpleGameClient {
 					robot=gui.getSelectedRobot();
 					dest=gui.getSelectedNode();
 					Manual_Movement mm = new Manual_Movement(g_algo, gameGraph, robots, fruits);
-					
+
 					//after the user clicked 
 					if(robot!=null && dest!=-1) {
 						if(mm.okayToGo(dest)) {
