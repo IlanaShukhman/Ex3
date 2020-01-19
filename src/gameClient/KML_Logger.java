@@ -8,28 +8,17 @@ import java.util.List;
 import Server.game_service;
 import dataStructure.DGraph;
 
-
-/**
- * The purpose of this class is to make a KML file of a running game. 
- * It will run alongside with the game, and save the robots and fruits' coordinates every second. 
- * @author Ilana
- *
- */
-
 public class KML_Logger implements Runnable {
 
 	private int level;
 	private DGraph graph;
-	private List<Robot> robots;
-	private List<Fruit> fruits;
+	private List<Robot_Client> robots;
+	private List<Fruit_Client> fruits;
+
 	private game_service game;
 	private int timeOfGame;
-	
-	/**
-	 * Constructor.
-	 */
 
-	public KML_Logger(int level, DGraph graph, List<Robot> robots, List<Fruit> fruits , game_service game) {
+	public KML_Logger(int level, DGraph graph, List<Robot_Client> robots, List<Fruit_Client> fruits , game_service game) {
 		this.graph=new DGraph(graph);
 		this.robots=robots;
 		this.fruits=fruits;
@@ -47,11 +36,6 @@ public class KML_Logger implements Runnable {
 
 
 	}
-	
-	/**
-	 * This method creates the content of the kml file, and sends it to the saveToFile function.
-	 * @return
-	 */
 
 	private String createKMLfile() {
 		String file=
@@ -122,7 +106,7 @@ public class KML_Logger implements Runnable {
 
 
 
-		for(Fruit fruit: fruits) {
+		for(Fruit_Client fruit: fruits) {
 			str+=	"<Placemark>\r\n"+
 
 					"<TimeSpan>\r\n"+
@@ -164,7 +148,7 @@ public class KML_Logger implements Runnable {
 		String[] color= {"ff0000ff","ffff0000","ff800080","ff00ffff","ffff00ff"};
 		int i=0;
 
-		for(Robot robot: robots) {
+		for(Robot_Client robot: robots) {
 			str+=	"<Placemark>\r\n"+
 
 					"<TimeSpan>\r\n"+

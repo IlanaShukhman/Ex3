@@ -7,7 +7,7 @@ import dataStructure.DGraph;
 import dataStructure.edge_data;
 import dataStructure.graph;
 import dataStructure.node_data;
-import gameClient.Fruit;
+import gameClient.Fruit_Client;
 import utils.Point3D;
 
 public class Ex3_Algo {
@@ -17,7 +17,7 @@ public class Ex3_Algo {
 	 * @param fruit
 	 * @return
 	 */
-	public edge_data fetchFruitToEdge(Fruit fruit,graph g)
+	public edge_data fetchFruitToEdge(Fruit_Client fruit,graph g)
 	{
 		Point3D mid=fruit.getLocation();
 		Collection<node_data> nodes=g.getV();

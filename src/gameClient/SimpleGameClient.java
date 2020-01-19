@@ -37,32 +37,41 @@ import algorithms.*;;
  *
  */
 public class SimpleGameClient {
-	private static List<Robot> robots;
-	private static List<Fruit> fruits;
+	private static List<Robot_Client> robots;
+	private static List<Fruit_Client> fruits;
 	private static MyGameGUI gui;
 	private static DGraph gameGraph;
 	private static Graph_Algo g_algo;
 
-	public static void main(String[] a) {
 
-		SimpleGameClient sgc= new SimpleGameClient();
+	public static void main(String[] a) {
+		SimpleGameClient scp = new SimpleGameClient();
 	}
 
 	public SimpleGameClient() {
+		//Choose scenario num
 		Ex3_Algo ex3_alg=new Ex3_Algo();
+		
+		//Create Graph
 		String s=chooseScenarioFromList();
+		
+		//if the user decided to cancel
 		if(s==null)
 			return;
+		
 		int scenario_num =Integer.valueOf(s);
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
 		gameGraph = new DGraph();
-		robots=new ArrayList<Robot>();
-		fruits=new ArrayList<Fruit>();
 		gameGraph.init(g);
+
+		//Create the lists of robots and fruits
+		robots=new ArrayList<Robot_Client>();
+		fruits=new ArrayList<Fruit_Client>();
+
 		//Game Server information such as:fruites,moves,grade,robots,graph,data
 		String info = game.toString();
-		GameServer gameServer=new GameServer();
+		GameServer_Client gameServer=new GameServer_Client();
 		gameServer.initFromJson(info);
 		int numRobots = gameServer.get_robots_number();
 
@@ -72,58 +81,57 @@ public class SimpleGameClient {
 		// update and displaying the fruites
 		int numFruits = gameServer.get_fruits_number();
 		for (int i = 0; i < numFruits; i++) {
-			Fruit fruit=new Fruit();
+			Fruit_Client fruit=new Fruit_Client();
 			fruit.initFromJson(game.getFruits().get(i));
 			edge_data edge=ex3_alg.fetchFruitToEdge(fruit, gameGraph);
 			fruit.setEdge(edge);
 			fruits.add(fruit);
 		}//for
-
-		Comparator<Fruit> compare=new Comparator<Fruit>() {
+		
+		Comparator<Fruit_Client> compare=new Comparator<Fruit_Client>() {
 
 			@Override
-			public int compare(Fruit f1, Fruit f2) {
+			public int compare(Fruit_Client f1, Fruit_Client f2) {
 				int dp =(int)(f2.getValue()-f1.getValue());
 				return dp;
 			}
 		};
-
-
+		
+		
 		fruits.sort(compare);
-		System.out.println("FRUITS:\n");
 		System.out.println(fruits.toString());
 
 
 		for(int i = 0;i<numRobots;i++) {
 			game.addRobot(fruits.get(i).getEdge().getSrc());
-			Robot r=new Robot();
+			Robot_Client r=new Robot_Client();
 			r.initFromJson(game.getRobots().get(i));
 			robots.add(i, r);
 			robots.get(i).setTarget(fruits.get(i));
+			System.out.println(r);
 		}//for
-
-		System.out.println("ROBOTS:\n");
-
-		System.out.println(robots.toString());
 		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
 		gui.setIsRunning(true);
 		gui.setLevel(scenario_num);
 		gui.setMap(gameServer.get_data());
 		System.out.println(gameServer.get_data());
+		// should be a Thread!!!
+
+
 		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
+
+
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
+
 		}//while
-		System.out.println(robots);
+
+
 		gui.setIsRunning(false);
 		String results = game.toString();
 		System.out.println("Game Over: "+results);
 	}
-
-
-
-	
 
 
 	/**
@@ -139,65 +147,50 @@ public class SimpleGameClient {
 			long t = game.timeToEnd();
 			gui.setTimeToEnd(t/1000);
 			for(int i=0;i<log.size();i++) {
+
 				String info = game.toString();
-				GameServer gameServer=new GameServer();
+				GameServer_Client gameServer=new GameServer_Client();
 				gameServer.initFromJson(info);
+				
 				gui.setScore(gameServer.get_grade());
 				gui.setMoves(gameServer.get_number_of_moves());
 				String robot_json = log.get(i);
-				Robot robot=new Robot();
+				Robot_Client robot=new Robot_Client();
 				robot.initFromJson(robot_json);
 				int rid = robot.get_id();
 				int src = robot.get_src();
 				int dest = robot.get_dest();
 				Point3D pos = robot.get_pos();
-				robots.get(i).initFromJson(robot_json);;
+				robots.get(i).set_pos(pos);
+				
+				//if it is automatic
 				if(gui.getState()==1) {
-					dest = nextNodeAuto(graph, src, robots.get(i));
+
+					Automatic_Movement am = new Automatic_Movement(g_algo, fruits, robots);
+					dest = am.nextNodeAuto(graph, src, robots.get(i));
 					robot.set_dest(dest);	
 					game.chooseNextEdge(rid, dest);
+				}//if
 
-						dest = nextNodeAuto(graph, src, robots.get(i));
-						robot.set_dest(dest);	
-						game.chooseNextEdge(rid, dest);
-						System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println(robot.toJSON());
-					}//if
 				//if it is manual
 				else if(gui.getState()==0) {
 					robot=gui.getSelectedRobot();
 					dest=gui.getSelectedNode();
-
+					Manual_Movement mm = new Manual_Movement(g_algo, gameGraph, robots, fruits);
 					//after the user clicked 
 					if(robot!=null && dest!=-1) {
-						if(okayToGo(dest)) {
+						if(mm.okayToGo(dest)) {
 							robot.set_dest(dest);		
 						}
-						int d = nextNodeManual(src, robots.get(i).get_dest());
+						int d = mm.nextNodeManual(src, robots.get(i).get_dest());
 						game.chooseNextEdge(rid, d);
 					}
 				}//else if
-				updateSrc();
 			}//for
-			
-			updateFruites(game,fruits,graph);
+			updateFruites(game);
 		}//if
 	}//moveRobots
 
-	/**
-	 * This function 
-	 */
-	private static void updateSrc() {
-		for(Robot robot: robots) {
-			for(Integer node : gameGraph.get_Node_Hash().keySet()) {
-				if(isClose(robot.get_pos(), gameGraph.getNode(node).getLocation())){
-					robot.set_src(node);
-				}
-			}
-		}
-
-	}
 
 	/**
 	 * Pop up window to determine which scenario the client wants
@@ -219,174 +212,15 @@ public class SimpleGameClient {
 	 * Extract information of the fruites from server in Json language and Update them
 	 * @param game
 	 */
-	private static void updateFruites(game_service game,List<Fruit> fruits,graph g) {
+	private static void updateFruites(game_service game) {
 		List<String> fruitInformation=game.getFruits();
-		
+
 		for (int i = 0; i < fruitInformation.size(); i++) {
-			fruits.get(i).initFromJson(fruitInformation.get(i));
-			Ex3_Algo ex3=new Ex3_Algo();
-			ex3.fetchFruitToEdge(fruits.get(i), g);
+			Fruit_Client fruit=new Fruit_Client();
+			fruit.initFromJson(fruitInformation.get(i));
+			fruits.get(i).set_pos(fruit.getLocation());
 		}//for
+
 	}//updateFruites
-
-
-	/**
-	 * a very simple random walk implementation!
-	 * @param g
-	 * @param src
-	 * @return
-	 */
-	private static int nextNodeRandom(graph g, int src) {
-		int ans = -1;
-		Collection<edge_data> ee = g.getE(src);
-		if(ee!=null) {
-			Iterator<edge_data> itr = ee.iterator();
-			int s = ee.size();
-			int r = (int)(Math.random()*s);
-			int i=0;
-			while(i<r) {itr.next();i++;}
-			ans = itr.next().getDest();
-		}//if
-		return ans;
-	}//nextNodeRandom
-
-	/**
-	 * Automatic next robot step by the recalculating path
-	 * @param g
-	 * @param src
-	 * @return
-	 */
-	private static int nextNodeAuto(graph g, int src,Robot robot) {	
-		Fruit close_fruit=choose_Close_Fruites(robot,g);
-		Ex3_Algo algo=new Ex3_Algo();
-		close_fruit.setEdge(algo.fetchFruitToEdge(close_fruit, g));
-		
-		g_algo=new Graph_Algo(g);
-		List<node_data> path=g_algo.shortestPath(src, close_fruit.getEdge().getSrc());
-		//List<node_data> path=g_algo.BFS_PATH(src, close_fruit.getEdge().getSrc());
-		if(path.size()==1)
-			close_fruit.getEdge().setTag(0);
-		path.add(g.getNode(close_fruit.getEdge().getDest()));
-		int dest=path.get(1).getKey();
-		g.getNode(dest).setInfo(String.valueOf(src));
-		robot.setTarget(close_fruit);
-		return dest;
-	}
-
-
-	/**
-	 * Choosing the fruit with the lowest distanse and highest value by proportion 
-	 * @param robot
-	 * @param g
-	 * @return
-	 */
-	private static Fruit choose_Close_Fruites(Robot robot,graph g) {
-
-		int src=robot.get_src();
-		float shortestpath=0;
-		g_algo=new Graph_Algo(g);
-		//g_algo.BFS(src);
-		Fruit target=robot.getTarget();
-		float min=(float) ((g_algo.shortestPathDist(src,target.getEdge().getSrc())+g.getNode(target.getEdge().getSrc()).getLocation().distance2D(target.getLocation())));
-		//float min=(float) ((g.getNode(target.getEdge().getSrc()).getWeight()+g.getNode(target.getEdge().getSrc()).getLocation().distance2D(target.getLocation()))/target.getValue());
-		for (Fruit fruit : fruits) {
-			if(alreadyTargeted(fruit)==-1)
-			{
-				double innerDistance=g.getNode(fruit.getEdge().getSrc()).getLocation().distance3D(fruit.getLocation());
-				shortestpath=(float) (float) ((g_algo.shortestPathDist(src,fruit.getEdge().getSrc())+innerDistance));
-				//shortestpath=(float) ((g.getNode(fruit.getEdge().getSrc()).getWeight()+g.getNode(fruit.getEdge().getSrc()).getLocation().distance2D(target.getLocation()))/fruit.getValue());
-				if(min>shortestpath )
-				{
-					//System.out.println("Change the min was: "+min+" Now: "+shortestpath);
-					min=shortestpath;
-					target=fruit;
-				}//if
-			}//else
-		}//for
-		
-		robot.setTarget(target);
-		target.getEdge().setTag(1);
-		return target;
-	}//choose_Close_Fruites
-
-
-
-
-
-	/**
-	 * 
-	 * @param robot
-	 * @return
-	 */
-	private static boolean priority(Robot robot) {
-		for (Robot r : robots) {
-			if(r.get_id()!=robot.get_id() && robot.get_speed()>=r.get_speed())
-				return false;
-		}//for
-		return true;
-	}//true
-
-
-/**
- * Check if is already targeted
- * true: return the robot id 
- * false: return -1
- * @param f
- * @return
- */
-	private static int alreadyTargeted(Fruit f) {
-		for (int i=0;i<robots.size();i++) {
-			if(robots.get(i).getTarget().equals(f))
-				return i;
-		}//for
-		return -1;
-	}//alreadyTarget
-
-	/**
-	 * return false if dest is a node that a robot is on-
-	 * that means the user probably tried to pick up the robot, and not the node.
-	 * @param dest is the node the user clicked on
-	 * @return false if there is a robot on dest - else, true, and it is okay to go there.
-	 */
-	private static boolean okayToGo(int dest) {
-		if(robots.size()==1)
-			return true;
-		for(Robot robot : robots) {
-			if(gameGraph.get_Node_Hash().get(dest).getLocation().equals(robot.get_pos())) {
-				return false;
-			}				
-		}
-
-
-		return true;
-	}
-	/**
-	 * Returns the robot's next node in a manual mode.
-	 * @param src is the robot's source node
-	 * @param dest is the destination node
-	 * @return the next node in the robot's path to the dest node.
-	 */
-	private static int nextNodeManual(int src, int dest) {
-		if(dest==-1)
-			return -1;
-		g_algo=new Graph_Algo(gameGraph);
-		List<node_data> path=g_algo.shortestPath(src, dest);
-		List<Integer> path_key=g_algo.NodeToKeyConverter(path);
-
-		if(path_key.size()==0) {
-			return -1;
-		}
-		else if(path_key.size()==1) {
-			return path_key.get(0);
-		}
-		return path_key.get(1);
-	}
-	
-	
-	private static boolean isClose(Point3D node1, Point3D node2) {
-		if(node1.distance2D(node2)<0.0005)
-			return true;
-		return false;
-	}
 
 }

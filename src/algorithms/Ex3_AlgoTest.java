@@ -13,16 +13,16 @@ import Server.game_service;
 import dataStructure.DGraph;
 import dataStructure.EdgeData;
 import dataStructure.edge_data;
-import gameClient.Fruit;
-import gameClient.GameServer;
+import gameClient.Fruit_Client;
+import gameClient.GameServer_Client;
 import gameClient.MyGameGUI;
-import gameClient.Robot;
+import gameClient.Robot_Client;
 import utils.Point3D;
 
 class Ex3_AlgoTest {
 
-	private static List<Robot> robots;
-	private static List<Fruit> fruits;
+	private static List<Robot_Client> robots;
+	private static List<Fruit_Client> fruits;
 
 	@Test
 	final void testFetchFruitToEdge() {
@@ -34,13 +34,13 @@ class Ex3_AlgoTest {
 		DGraph gameGraph = new DGraph();
 		gameGraph.init(g);
 		//Create the lists of robots and fruits
-		robots=new ArrayList<Robot>();
-		fruits=new ArrayList<Fruit>();
+		robots=new ArrayList<Robot_Client>();
+		fruits=new ArrayList<Fruit_Client>();
 		//Game Server information such as:fruites,moves,grade,robots,graph,data
 		String info = game.toString();
 
 
-		GameServer gameServer=new GameServer();
+		GameServer_Client gameServer=new GameServer_Client();
 		gameServer.initFromJson(info);
 		int numRobots = gameServer.get_robots_number();
 
@@ -56,14 +56,14 @@ class Ex3_AlgoTest {
 		for(int a = 0;a<numRobots;a++) {
 			game.addRobot(src_node+a);
 
-			Robot r=new Robot();
+			Robot_Client r=new Robot_Client();
 			r.initFromJson(game.getRobots().get(a));
 			robots.add(r);
 		}//for
 
 		int numFruits = gameServer.get_fruits_number();
 		for (int i = 0; i < numFruits; i++) {
-			Fruit fruit=new Fruit();
+			Fruit_Client fruit=new Fruit_Client();
 			fruit.initFromJson(game.getFruits().get(i));
 			fruits.add(fruit);
 
@@ -72,7 +72,7 @@ class Ex3_AlgoTest {
 
 		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
 
-		Fruit fruit= fruits.get(0);
+		Fruit_Client fruit= fruits.get(0);
 		
 		Ex3_Algo a=new Ex3_Algo();
 

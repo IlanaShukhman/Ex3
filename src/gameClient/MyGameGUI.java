@@ -1,6 +1,7 @@
 package gameClient;
 
 import java.awt.Color;
+import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -10,7 +11,6 @@ import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
 
 import Server.Game_Server;
 import Server.game_service;
@@ -37,8 +37,8 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	double proportionX;
 	double proportionY;
 
-	private List<Robot> robots;
-	private List<Fruit> fruits;
+	private List<Robot_Client> robots;
+	private List<Fruit_Client> fruits;
 	
 	//Game information
 	private int moves;
@@ -50,7 +50,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	//This is used to determine if it is automatic or manual
 	private int state;
-	private Robot selectedRobot;
+	private Robot_Client selectedRobot;
 	private int selectedNode;
 
 
@@ -60,10 +60,10 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	 * Constructors
 	 */
 	public MyGameGUI(){
-		this(new DGraph(),new ArrayList<Robot>(), new ArrayList<Fruit>());
+		this(new DGraph(),new ArrayList<Robot_Client>(), new ArrayList<Fruit_Client>());
 	}
 
-	public MyGameGUI(DGraph g, List<Robot> robots,List<Fruit> fruits){
+	public MyGameGUI(DGraph g, List<Robot_Client> robots,List<Fruit_Client> fruits){
 		width=1000;
 		height=600;
 		this.graph=g;
@@ -94,6 +94,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	}//Graph_GUI
 
 	public void setMoves(int numOfMoves){
+		System.out.println(numOfMoves);
 		this.moves=numOfMoves;
 	}
 
@@ -132,7 +133,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		return this.selectedNode;
 	}
 
-	public Robot getSelectedRobot() {
+	public Robot_Client getSelectedRobot() {
 		return this.selectedRobot;
 	}
 
@@ -196,14 +197,14 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	private void drawRobots() {
 		Color[] color= {Color.blue,Color.darkGray,Color.green,Color.magenta,Color.pink};
 		int i=0;
-		for(Robot robot : robots) {
+		for(Robot_Client robot : robots) {
 			StdDraw.setPenColor(color[i]);
 			double xr=updateX(robot.get_pos().x());
 			double yr=updateY(robot.get_pos().y());
-
 			StdDraw.circle(xr, yr, 10);
-			StdDraw.text(xr, yr-20,"Grade:"+String.valueOf(robot.get_value()));
-			StdDraw.text(xr, yr-40,"Speed:"+String.valueOf(robot.get_speed()));
+			System.out.println(robot.get_value());
+			StdDraw.text(xr, yr-20, "Grade: "+String.valueOf(robot.get_value()));
+			StdDraw.text(xr, yr-40, "Speed:"+String.valueOf(robot.get_speed()));
 			if(robot.equals(selectedRobot)){
 				StdDraw.circle(xr,yr,12);
 			}//if
@@ -216,7 +217,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	 * This function will draw the fruits on the graph.
 	 */
 	private void drawFruits() {
-		for(Fruit fruit: fruits) {
+		for(Fruit_Client fruit: fruits) {
 
 			double xr=updateX(fruit.getLocation().x());
 			double yr=updateY(fruit.getLocation().y());
@@ -452,6 +453,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		gameGraph.init(g);
 		MyGameGUI gui=new MyGameGUI(gameGraph, new ArrayList<>(), new ArrayList<>());
 	}
+
 
 }
 
