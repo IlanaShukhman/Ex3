@@ -10,3 +10,4 @@ Then, choose if you want to manually move the robots or not. If you choose yes, 
 and then on the destination node. If there are more than one robot, you can move them simultaneously. 
 If you chose 'no', the robots will move automatically to the closest fruit, and eat as many as they can. 
 
+All this is a metaphor of a car nevigator that all he wants is to get as fast as he can to the destination point.
