@@ -123,7 +123,7 @@ public class SimpleGameClient {
 
 
 
-	
+
 
 
 	/**
@@ -157,13 +157,14 @@ public class SimpleGameClient {
 					robot.set_dest(dest);	
 					game.chooseNextEdge(rid, dest);
 
-						dest = nextNodeAuto(graph, src, robots.get(i));
-						robot.set_dest(dest);	
-						game.chooseNextEdge(rid, dest);
-						System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						System.out.println(robot.toJSON());
-					}//if
+					dest = nextNodeAuto(graph, src, robots.get(i));
+					robot.set_dest(dest);	
+					game.chooseNextEdge(rid, dest);
+					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
+					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+					System.out.println(robot.toJSON());
+				}//if
+
 				//if it is manual
 				else if(gui.getState()==0) {
 					robot=gui.getSelectedRobot();
@@ -180,7 +181,7 @@ public class SimpleGameClient {
 				}//else if
 				updateSrc();
 			}//for
-			
+
 			updateFruites(game,fruits,graph);
 		}//if
 	}//moveRobots
@@ -221,7 +222,7 @@ public class SimpleGameClient {
 	 */
 	private static void updateFruites(game_service game,List<Fruit> fruits,graph g) {
 		List<String> fruitInformation=game.getFruits();
-		
+
 		for (int i = 0; i < fruitInformation.size(); i++) {
 			fruits.get(i).initFromJson(fruitInformation.get(i));
 			Ex3_Algo ex3=new Ex3_Algo();
@@ -260,7 +261,7 @@ public class SimpleGameClient {
 		Fruit close_fruit=choose_Close_Fruites(robot,g);
 		Ex3_Algo algo=new Ex3_Algo();
 		close_fruit.setEdge(algo.fetchFruitToEdge(close_fruit, g));
-		
+
 		g_algo=new Graph_Algo(g);
 		List<node_data> path=g_algo.shortestPath(src, close_fruit.getEdge().getSrc());
 		//List<node_data> path=g_algo.BFS_PATH(src, close_fruit.getEdge().getSrc());
@@ -303,7 +304,7 @@ public class SimpleGameClient {
 				}//if
 			}//else
 		}//for
-		
+
 		robot.setTarget(target);
 		target.getEdge().setTag(1);
 		return target;
@@ -327,13 +328,13 @@ public class SimpleGameClient {
 	}//true
 
 
-/**
- * Check if is already targeted
- * true: return the robot id 
- * false: return -1
- * @param f
- * @return
- */
+	/**
+	 * Check if is already targeted
+	 * true: return the robot id 
+	 * false: return -1
+	 * @param f
+	 * @return
+	 */
 	private static int alreadyTargeted(Fruit f) {
 		for (int i=0;i<robots.size();i++) {
 			if(robots.get(i).getTarget().equals(f))
@@ -381,8 +382,8 @@ public class SimpleGameClient {
 		}
 		return path_key.get(1);
 	}
-	
-	
+
+
 	private static boolean isClose(Point3D node1, Point3D node2) {
 		if(node1.distance2D(node2)<0.0005)
 			return true;

@@ -118,7 +118,7 @@ public class KML_Logger implements Runnable {
 	 */
 	private String updateFruits() {
 		String str="";
-		long time=(timeOfGame - game.timeToEnd())/1000;
+		long time=(timeOfGame - game.timeToEnd())/100;
 
 
 
@@ -159,7 +159,7 @@ public class KML_Logger implements Runnable {
 	private String updateRobots() {
 
 		String str="";
-		long time=(timeOfGame - game.timeToEnd())/1000;
+		long time=(timeOfGame - game.timeToEnd())/100;
 
 		String[] color= {"ff0000ff","ffff0000","ff800080","ff00ffff","ffff00ff"};
 		int i=0;
