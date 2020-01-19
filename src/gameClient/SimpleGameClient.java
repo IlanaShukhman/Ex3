@@ -44,79 +44,86 @@ public class SimpleGameClient {
 	private static Graph_Algo g_algo;
 
 	public static void main(String[] a) {
-				Ex3_Algo ex3_alg=new Ex3_Algo();
-				String s=chooseScenarioFromList();
-				if(s==null)
-					return;
-				int scenario_num =Integer.valueOf(s);
-				game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
-				String g = game.getGraph();
-				gameGraph = new DGraph();
-				robots=new ArrayList<Robot>();
-				fruits=new ArrayList<Fruit>();
-				gameGraph.init(g);
-				//Game Server information such as:fruites,moves,grade,robots,graph,data
-				String info = game.toString();
-				GameServer gameServer=new GameServer();
-				gameServer.initFromJson(info);
-				int numRobots = gameServer.get_robots_number();
 
-				System.out.println(gameServer);
-				System.out.println(g);
+		SimpleGameClient sgc= new SimpleGameClient();
+	}
 
-				// update and displaying the fruites
-				int numFruits = gameServer.get_fruits_number();
-				for (int i = 0; i < numFruits; i++) {
-					Fruit fruit=new Fruit();
-					fruit.initFromJson(game.getFruits().get(i));
-					edge_data edge=ex3_alg.fetchFruitToEdge(fruit, gameGraph);
-					fruit.setEdge(edge);
-					fruits.add(fruit);
-				}//for
+	public SimpleGameClient() {
+		Ex3_Algo ex3_alg=new Ex3_Algo();
+		String s=chooseScenarioFromList();
+		if(s==null)
+			return;
+		int scenario_num =Integer.valueOf(s);
+		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
+		String g = game.getGraph();
+		gameGraph = new DGraph();
+		robots=new ArrayList<Robot>();
+		fruits=new ArrayList<Fruit>();
+		gameGraph.init(g);
+		//Game Server information such as:fruites,moves,grade,robots,graph,data
+		String info = game.toString();
+		GameServer gameServer=new GameServer();
+		gameServer.initFromJson(info);
+		int numRobots = gameServer.get_robots_number();
 
-				Comparator<Fruit> compare=new Comparator<Fruit>() {
+		System.out.println(gameServer);
+		System.out.println(g);
 
-					@Override
-					public int compare(Fruit f1, Fruit f2) {
-						int dp =(int)(f2.getValue()-f1.getValue());
-						return dp;
-					}
-				};
+		// update and displaying the fruites
+		int numFruits = gameServer.get_fruits_number();
+		for (int i = 0; i < numFruits; i++) {
+			Fruit fruit=new Fruit();
+			fruit.initFromJson(game.getFruits().get(i));
+			edge_data edge=ex3_alg.fetchFruitToEdge(fruit, gameGraph);
+			fruit.setEdge(edge);
+			fruits.add(fruit);
+		}//for
 
+		Comparator<Fruit> compare=new Comparator<Fruit>() {
 
-				fruits.sort(compare);
-				System.out.println("FRUITS:\n");
-				System.out.println(fruits.toString());
-
-
-				for(int i = 0;i<numRobots;i++) {
-					game.addRobot(fruits.get(i).getEdge().getSrc());
-					Robot r=new Robot();
-					r.initFromJson(game.getRobots().get(i));
-					robots.add(i, r);
-					robots.get(i).setTarget(fruits.get(i));
-				}//for
-
-				System.out.println("ROBOTS:\n");
-
-				System.out.println(robots.toString());
-				gui=new MyGameGUI(gameGraph, robots, fruits);
-				game.startGame();
-				gui.setIsRunning(true);
-				gui.setLevel(scenario_num);
-				gui.setMap(gameServer.get_data());
-				System.out.println(gameServer.get_data());
-				KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
-				while(game.isRunning()) {
-					moveRobots(game, gameGraph);
-				}//while
-				System.out.println(robots);
-				gui.setIsRunning(false);
-				String results = game.toString();
-				System.out.println("Game Over: "+results);
+			@Override
+			public int compare(Fruit f1, Fruit f2) {
+				int dp =(int)(f2.getValue()-f1.getValue());
+				return dp;
 			}
+		};
+
+
+		fruits.sort(compare);
+		System.out.println("FRUITS:\n");
+		System.out.println(fruits.toString());
+
+
+		for(int i = 0;i<numRobots;i++) {
+			game.addRobot(fruits.get(i).getEdge().getSrc());
+			Robot r=new Robot();
+			r.initFromJson(game.getRobots().get(i));
+			robots.add(i, r);
+			robots.get(i).setTarget(fruits.get(i));
+		}//for
+
+		System.out.println("ROBOTS:\n");
+
+		System.out.println(robots.toString());
+		gui=new MyGameGUI(gameGraph, robots, fruits);
+		game.startGame();
+		gui.setIsRunning(true);
+		gui.setLevel(scenario_num);
+		gui.setMap(gameServer.get_data());
+		System.out.println(gameServer.get_data());
+		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
+		while(game.isRunning()) {
+			moveRobots(game, gameGraph);
+		}//while
+		System.out.println(robots);
+		gui.setIsRunning(false);
+		String results = game.toString();
+		System.out.println("Game Over: "+results);
+	}
+
+
+
 	
-		
 
 
 	/**
@@ -178,6 +185,9 @@ public class SimpleGameClient {
 		}//if
 	}//moveRobots
 
+	/**
+	 * This function 
+	 */
 	private static void updateSrc() {
 		for(Robot robot: robots) {
 			for(Integer node : gameGraph.get_Node_Hash().keySet()) {
