@@ -1,22 +1,12 @@
 package dataStructure;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map.Entry;
-
-import javax.management.RuntimeErrorException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-
-import gui.Graph_GUI;
 import utils.Point3D;
 
 /**
@@ -301,13 +291,7 @@ public class DGraph implements graph,Serializable{
 		}//if
 		return false;
 	}//equals
-	/**
-	 * This function will pop the graph presentation
-	 */
-	public void show() {
-		Graph_GUI window=new Graph_GUI(this);
-		window.setVisible(true);
-	}//show
+	
 	@Override
 	public String toString() {
 		return "DGraph [Node_Hash=" + Nodes + "\nEdge_Hash=" + Edges + "\nModeCount=" + ModeCount

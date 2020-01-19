@@ -1,12 +1,16 @@
 package gameClient;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-import algorithms.Ex3_Algo;
-import dataStructure.EdgeData;
 import dataStructure.edge_data;
 import utils.Point3D;
+
+/**
+ * This class represent a fruit, which has a location, a value, a type and the edge it is on.
+ * @author Ilana
+ *
+ */
+
 
 public class Fruit {
     private Point3D _pos;

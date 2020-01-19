@@ -21,16 +21,19 @@ public class Ex3_Algo {
 	{
 		Point3D mid=fruit.getLocation();
 		Collection<node_data> nodes=g.getV();
+		
 		for (node_data src : nodes) {
 			Collection<edge_data> edges=g.getE(src.getKey());
+			
 			for (edge_data edge : edges) {
 				Point3D start=src.getLocation();
 				node_data dest=g.getNode(edge.getDest());
 				Point3D end=dest.getLocation();
+				
 				//Check if it's on the right edge by definition and math
 				if(fruitOnEdge(start, end, mid) && ((dest.getKey()- src.getKey()>0 && fruit.getType()==1)||( dest.getKey()-src.getKey()<0 &&fruit.getType()==-1)))
 				{
-					System.out.println("FETCH FRUIT TO EDGE, FRUIT: SRC="+edge.getSrc()+" DEST="+edge.getDest()+" TYPE="+fruit.getType());
+					//System.out.println("FETCH FRUIT TO EDGE, FRUIT: SRC="+edge.getSrc()+" DEST="+edge.getDest()+" TYPE="+fruit.getType());
 					return edge;
 				}//if
 			}//for
@@ -39,8 +42,7 @@ public class Ex3_Algo {
 		return null;
 	}//fetchFruitToEdge
 	
-	private boolean fruitOnEdge(Point3D start,Point3D end,Point3D mid)
-	{
+	private boolean fruitOnEdge(Point3D start,Point3D end,Point3D mid){
 		return(Math.abs(start.distance2D(end)-(start.distance2D(mid)+end.distance2D(mid)))<=EPS);
 	}//fruitOnEdge
 	

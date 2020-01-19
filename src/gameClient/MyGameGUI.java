@@ -1,32 +1,20 @@
 package gameClient;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import Server.Game_Server;
 import Server.game_service;
-import algorithms.Graph_Algo;
 import dataStructure.DGraph;
-import dataStructure.edge_data;
-import dataStructure.graph;
-import gui.Graph_GUI;
 import utils.Point3D;
 import utils.Range;
 import utils.StdDraw;
@@ -45,19 +33,20 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	private List<Robot> robots;
 	private List<Fruit> fruits;
-	//Manu bar information
+	//Menu bar information
 	private int moves;
 	private double score;
 	private long timeToEnd;
 	private int level;
 	private boolean isRunning;	
 	private String map;
-	//this is used to determine if it is automatic or manual
+
+	//This is used to determine if it is automatic or manual
 	private int state;
 	private Robot selectedRobot;
 	private int selectedNode;
 
-	
+
 
 
 	/**
@@ -86,7 +75,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		this.timeToEnd=0;
 		this.isRunning=false;
 		this.moves=0;
-		
+
 		StdDraw.setCanvasSize(width, height);	
 		this.state=JOptionPane.showConfirmDialog(this, "Manual?");
 		this.selectedNode=-1;
@@ -96,13 +85,16 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		t.start();
 
 	}//Graph_GUI
-	public void setMoves(int numOfMoves)
-	{
+
+	public void setMoves(int numOfMoves){
 		this.moves=numOfMoves;
 	}
-	public void initGUI() {
-		draw();
-	}//initGui
+
+
+	/**
+	 * Setters.
+	 * @param map
+	 */
 
 	public void setMap(String map) {
 		this.map=map;
@@ -121,6 +113,10 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	public void setLevel(int level) {
 		this.level = level;
 	}
+
+	/**
+	 * Getters.
+	 */
 	public int getState() {
 		return this.state;
 	}
@@ -133,6 +129,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		return this.selectedRobot;
 	}
 
+	/**
+	 * Private functions to change from map coordinates to pixels.
+	 */
 	private double updateX(double x) {
 		return (x-rx.get_min())*proportionX;
 	}//updateX
@@ -141,6 +140,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		return (y-ry.get_min())*proportionY;
 	}//upsateY
 
+	/**
+	 * This function draws the vertices of the graph.
+	 */
 	private void drawVer() {
 		for(Integer v : graph.get_Node_Hash().keySet()) {
 			Point3D src=graph.get_Node_Hash().get(v).getLocation();
@@ -156,6 +158,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		}//for
 	}//drawVer
 
+	/**
+	 * This function will draw the edges of the graph.
+	 */
 	private void drawEdges() {
 		for( Integer v : graph.get_Edge_Hash().keySet() ) {
 			for ( Integer u : graph.get_Edge_Hash().get(v).keySet() ) {
@@ -178,7 +183,9 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	}//draw edges
 
 
-
+	/**
+	 * This function will draw the robots on the graph.
+	 */
 	private void drawRobots() {
 		Color[] color= {Color.blue,Color.darkGray,Color.green,Color.magenta,Color.pink};
 		int i=0;
@@ -187,19 +194,20 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			double xr=updateX(robot.get_pos().x());
 			double yr=updateY(robot.get_pos().y());
 
-			StdDraw.circle(xr, yr, 10);
+			StdDraw.filledCircle(xr, yr, 10);
 			StdDraw.text(xr, yr-20,"Grade:"+String.valueOf(robot.get_value()));
 			StdDraw.text(xr, yr-40,"Speed:"+String.valueOf(robot.get_speed()));
-			if(robot.equals(selectedRobot))
-			{
+			if(robot.equals(selectedRobot)){
 				StdDraw.circle(xr,yr,12);
-				
 			}//if
 
 			i++;
 		}//for
 	}//updateRobots
 
+	/**
+	 * This function will draw the fruits on the graph.
+	 */
 	private void drawFruits() {
 		for(Fruit fruit: fruits) {
 
@@ -214,14 +222,16 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			else if(fruit.getType()==1) {
 				StdDraw.picture(xr, yr, "apple.png", 25, 25);
 			}
-			
+
 		}
 
 	}
 
 
 
-
+	/**
+	 * This method is used to draw the graph on the screen.
+	 */
 	public void draw() {
 		StdDraw.enableDoubleBuffering();
 		StdDraw.clear();
@@ -230,7 +240,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		StdDraw.setYscale(0,600);
 
 		StdDraw.setPenColor(Color.BLACK);
-		
+
 		drawVer();
 		drawEdges();
 		drawFruits();
@@ -322,7 +332,6 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	@Override
 	public void run() {
-		initGUI();
 		while(true)
 		{
 			synchronized (this) {
@@ -339,7 +348,12 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		// TODO Auto-generated method stub
 
 	}
-
+	/**
+	 * This method will return true is a point is close to another point.
+	 * @param node1
+	 * @param node2
+	 * @return true if node1 is close to node2.
+	 */
 	private boolean isClose(Point3D node1, Point3D node2) {
 		if(node1.distance2D(node2)<0.0005)
 			return true;
@@ -363,18 +377,23 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	private double reUpdateY(double y) {
 		return (y/proportionY)+ry.get_min();
 	}
-
+	/**
+	 * This method is called when the user clicked on the screen and the state is manual.
+	 */
 	private void pressed() {
 		if(state==0) {//means it is manual
 			double x= reUpdateX(StdDraw.mouseX());
 			double y= reUpdateY(StdDraw.mouseY());
 			Point3D p=new Point3D(x,y);
+
+
 			for(Integer node : graph.get_Node_Hash().keySet()) {
 				Point3D loc=graph.get_Node_Hash().get(node).getLocation();
-				if(/*selectedRobot!=null &&*/ isClose(p,loc) ) {
+				if(isClose(p,loc) ) {
 					selectedNode=node;
 				}
 			}
+
 
 			//click on the robot.
 			for (int i = 0; i < robots.size(); i++) {
@@ -409,12 +428,12 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		
+
 	}
 
 

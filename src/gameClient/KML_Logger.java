@@ -1,26 +1,38 @@
 package gameClient;
 
-import java.awt.Color;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.List;
 
 import Server.game_service;
 import dataStructure.DGraph;
 
+
+/**
+ * The purpose of this class is to make a KML file of a running game. 
+ * It will run alongside with the game, and save the robots and fruits' coordinates every second. 
+ * @author Ilana
+ *
+ */
+
 public class KML_Logger implements Runnable {
 
 	private int level;
 	private DGraph graph;
-	private static List<Robot> robots;
-	private static List<Fruit> fruits;
-
-	private static game_service game;
-	private static int timeOfGame;
+	private List<Robot> robots;
+	private List<Fruit> fruits;
+	private game_service game;
+	private int timeOfGame;
+	
+	/**
+	 * Constructor.
+	 * @param level
+	 * @param graph
+	 * @param robots
+	 * @param fruits
+	 * @param game
+	 */
 
 	public KML_Logger(int level, DGraph graph, List<Robot> robots, List<Fruit> fruits , game_service game) {
 		this.graph=new DGraph(graph);
@@ -40,6 +52,11 @@ public class KML_Logger implements Runnable {
 
 
 	}
+	
+	/**
+	 * This method creates the content of the kml file, and sends it to the saveToFile function.
+	 * @return
+	 */
 
 	public String createKMLfile() {
 		String file=
