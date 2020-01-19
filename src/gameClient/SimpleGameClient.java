@@ -38,17 +38,16 @@ import algorithms.*;;
  */
 public class SimpleGameClient {
 	private static List<Robot> robots;
-	private static List<Robot> robots_Priority;
 	private static List<Fruit> fruits;
 	private static MyGameGUI gui;
 	private static DGraph gameGraph;
 	private static Graph_Algo g_algo;
 
 	public static void main(String[] a) {
-		test1();
+		SimpleGameClient sgc= new SimpleGameClient();
 	}
 
-	public static void test1() {
+	public SimpleGameClient() {
 		//Choose scenario num
 		Ex3_Algo ex3_alg=new Ex3_Algo();
 
@@ -68,7 +67,7 @@ public class SimpleGameClient {
 		//Create the lists of robots and fruits
 		robots=new ArrayList<Robot>();
 		fruits=new ArrayList<Fruit>();
-		robots_Priority=new ArrayList<Robot>();
+		
 		//Game Server information such as:fruites,moves,grade,robots,graph,data
 		String info = game.toString();
 		GameServer gameServer=new GameServer();
@@ -89,7 +88,6 @@ public class SimpleGameClient {
 		}//for
 
 		Comparator<Fruit> compare=new Comparator<Fruit>() {
-
 			@Override
 			public int compare(Fruit f1, Fruit f2) {
 				int dp =(int)(f2.getValue()-f1.getValue());
@@ -111,19 +109,15 @@ public class SimpleGameClient {
 		}//for
 		
 		System.out.println(robots.toString());
-		robots_Priority.addAll(robots);
 		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
 		gui.setIsRunning(true);
 		gui.setLevel(scenario_num);
 		gui.setMap(gameServer.get_data());
 		System.out.println(gameServer.get_data());
-		// should be a Thread!!!
-
-
 		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
 
-
+		// should be a Thread!!!
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
 		}//while
@@ -200,6 +194,9 @@ public class SimpleGameClient {
 		}//if
 	}//moveRobots
 
+	/**
+	 * This function 
+	 */
 	private static void updateSrc() {
 		for(Robot robot: robots) {
 			for(Integer node : gameGraph.get_Node_Hash().keySet()) {

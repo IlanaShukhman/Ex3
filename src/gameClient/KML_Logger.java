@@ -27,11 +27,6 @@ public class KML_Logger implements Runnable {
 	
 	/**
 	 * Constructor.
-	 * @param level
-	 * @param graph
-	 * @param robots
-	 * @param fruits
-	 * @param game
 	 */
 
 	public KML_Logger(int level, DGraph graph, List<Robot> robots, List<Fruit> fruits , game_service game) {
@@ -58,7 +53,7 @@ public class KML_Logger implements Runnable {
 	 * @return
 	 */
 
-	public String createKMLfile() {
+	private String createKMLfile() {
 		String file=
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
 						"<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\" xmlns:kml=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\">\r\n"
@@ -221,7 +216,7 @@ public class KML_Logger implements Runnable {
 	 * @param file
 	 * @throws IOException
 	 */
-	public void saveToFile(String file) throws IOException {
+	private void saveToFile(String file) throws IOException {
 		try {
 			File f=new File(this.level+".kml");
 			PrintWriter print=new PrintWriter(f);

@@ -19,6 +19,12 @@ import utils.Point3D;
 import utils.Range;
 import utils.StdDraw;
 
+/**
+ * This class represents a simple gui for the class SimpleGameClient.
+ * In this class, we use the StdDraw Library to draw the graph on the screen. 
+ * @author Ilana
+ */
+
 public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,Runnable{
 
 
@@ -33,7 +39,8 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 
 	private List<Robot> robots;
 	private List<Fruit> fruits;
-	//Menu bar information
+	
+	//Game information
 	private int moves;
 	private double score;
 	private long timeToEnd;
