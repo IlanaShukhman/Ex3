@@ -94,7 +94,6 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 	}//Graph_GUI
 
 	public void setMoves(int numOfMoves){
-		System.out.println(numOfMoves);
 		this.moves=numOfMoves;
 	}
 
@@ -202,8 +201,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			double xr=updateX(robot.get_pos().x());
 			double yr=updateY(robot.get_pos().y());
 			StdDraw.circle(xr, yr, 10);
-			System.out.println(robot.get_value());
-			StdDraw.text(xr, yr-20, "Grade: "+String.valueOf(robot.get_value()));
+			StdDraw.text(xr, yr-20, "Grade:"+String.valueOf(robot.get_value()));
 			StdDraw.text(xr, yr-40, "Speed:"+String.valueOf(robot.get_speed()));
 			if(robot.equals(selectedRobot)){
 				StdDraw.circle(xr,yr,12);

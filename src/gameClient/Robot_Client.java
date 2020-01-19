@@ -1,17 +1,12 @@
 package gameClient;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONObject;
 
 import Server.robot;
-import dataStructure.edge_data;
-import dataStructure.node_data;
-import oop_dataStructure.oop_graph;
 import utils.Point3D;
+
 /**
- * This class represent the same robot information that give us the server.
+ * This class represent the same robot information that gives us the server.
  * In this class we simply parsing information from the server in Json format and build Robot object
  * This class have the same variables and methods such as:
  * Constructors, Getters, Setters,init from Json, Equals ,toString
@@ -29,19 +24,8 @@ public class Robot_Client {
 
 	/**
 	 * Constructors:
-	 * @return
 	 */
-	
-
-	public void setTarget(Fruit_Client target) {
-		this.target = target;
-		System.out.println("Robot id:"+this._id+" set target:"+this.target);
-	}
-
-
-	public Robot_Client()
-	{
-		
+	public Robot_Client(){
 	}
 
 	public Robot_Client(int _id, Point3D _pos, double _value, int _src, int _dest, double _speed) {
@@ -100,6 +84,10 @@ public class Robot_Client {
 
 	public void set_pos(Point3D _pos) {
 		this._pos = _pos;
+	}
+	
+	public void setTarget(Fruit_Client target) {
+		this.target = target;
 	}
 
 
