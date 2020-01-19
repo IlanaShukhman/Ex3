@@ -97,6 +97,7 @@ public class SimpleGameClient {
 
 
 		fruits.sort(compare);
+		System.out.println("FRUITS:\n");
 		System.out.println(fruits.toString());
 
 
@@ -107,7 +108,9 @@ public class SimpleGameClient {
 			robots.add(i, r);
 			robots.get(i).setTarget(fruits.get(i));
 		}//for
-		
+
+		System.out.println("ROBOTS:\n");
+
 		System.out.println(robots.toString());
 		gui=new MyGameGUI(gameGraph, robots, fruits);
 		game.startGame();
@@ -162,16 +165,21 @@ public class SimpleGameClient {
 					dest = nextNodeAuto(graph, src, robots.get(i));
 					robot.set_dest(dest);	
 					game.chooseNextEdge(rid, dest);
-					updateFruites(game,fruits);
-					//						System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
-					//						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-					//						System.out.println(robot.toJSON());
 
-					//					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
-					//					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-					//					System.out.println(robot.toJSON());
+						dest = nextNodeAuto(graph, src, robots.get(i));
+						robot.set_dest(dest);	
+						game.chooseNextEdge(rid, dest);
+						System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
+						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+						System.out.println(robot.toJSON());
 
-				}//if
+						//					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
+						//					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
+						//					System.out.println(robot.toJSON());
+
+					}//if
+
+					//if it is manual
 
 				//if it is manual
 				else if(gui.getState()==0) {
@@ -185,12 +193,12 @@ public class SimpleGameClient {
 						}
 						int d = nextNodeManual(src, robots.get(i).get_dest());
 						game.chooseNextEdge(rid, d);
-						updateFruites(game,fruits);
 					}
 				}//else if
 				
 				updateSrc();
 			}//for
+			updateFruites(game,fruits,graph);
 		}//if
 	}//moveRobots
 
@@ -228,12 +236,14 @@ public class SimpleGameClient {
 	 * Extract information of the fruites from server in Json language and Update them
 	 * @param game
 	 */
-	private static void updateFruites(game_service game,List<Fruit> fruits) {
+	private static void updateFruites(game_service game,List<Fruit> fruits,graph g) {
 		List<String> fruitInformation=game.getFruits();
+		
 		for (int i = 0; i < fruitInformation.size(); i++) {
 			fruits.get(i).initFromJson(fruitInformation.get(i));
+			Ex3_Algo ex3=new Ex3_Algo();
+			ex3.fetchFruitToEdge(fruits.get(i), g);
 		}//for
-
 	}//updateFruites
 
 
@@ -267,18 +277,14 @@ public class SimpleGameClient {
 		Fruit close_fruit=choose_Close_Fruites(robot,g);
 		Ex3_Algo algo=new Ex3_Algo();
 		close_fruit.setEdge(algo.fetchFruitToEdge(close_fruit, g));
+		
 		g_algo=new Graph_Algo(g);
-		List<node_data> path=g_algo.shortestPath(src, close_fruit.getEdge().getDest());
+		List<node_data> path=g_algo.shortestPath(src, close_fruit.getEdge().getSrc());
+		//List<node_data> path=g_algo.BFS_PATH(src, close_fruit.getEdge().getSrc());
+		if(path.size()==1)
+			close_fruit.getEdge().setTag(0);
+		path.add(g.getNode(close_fruit.getEdge().getDest()));
 		int dest=path.get(1).getKey();
-
-		//		if(g.getNode(dest).getInfo().equals(String.valueOf(src)))
-		//		{
-		//			//return changeDirection(g, src,dest, close_fruit);
-		//		}//if
-		//		if(src==dest)
-		//			return close_fruit.getEdge().getSrc();
-		//		System.out.println("PATH:**"+path);
-
 		g.getNode(dest).setInfo(String.valueOf(src));
 		robot.setTarget(close_fruit);
 		return dest;
@@ -296,14 +302,16 @@ public class SimpleGameClient {
 		int src=robot.get_src();
 		float shortestpath=0;
 		g_algo=new Graph_Algo(g);
+		//g_algo.BFS(src);
 		Fruit target=robot.getTarget();
-		float min=(float) ((g_algo.shortestPathDist(src,target.getEdge().getSrc())+g.getNode(target.getEdge().getSrc()).getLocation().distance2D(target.getLocation()))/target.getValue());
+		float min=(float) ((g_algo.shortestPathDist(src,target.getEdge().getSrc())+g.getNode(target.getEdge().getSrc()).getLocation().distance2D(target.getLocation())));
+		//float min=(float) ((g.getNode(target.getEdge().getSrc()).getWeight()+g.getNode(target.getEdge().getSrc()).getLocation().distance2D(target.getLocation()))/target.getValue());
 		for (Fruit fruit : fruits) {
-			if(alreadyTargeted(fruit)==-1 ||
-					(robot.get_id()!=robots.get(alreadyTargeted(fruit)).get_id() && priority(robot)) )
+			if(alreadyTargeted(fruit)==-1)
 			{
 				double innerDistance=g.getNode(fruit.getEdge().getSrc()).getLocation().distance3D(fruit.getLocation());
-				shortestpath=(float) (float) ((g_algo.shortestPathDist(src,fruit.getEdge().getSrc())+innerDistance)/fruit.getValue());
+				shortestpath=(float) (float) ((g_algo.shortestPathDist(src,fruit.getEdge().getSrc())+innerDistance));
+				//shortestpath=(float) ((g.getNode(fruit.getEdge().getSrc()).getWeight()+g.getNode(fruit.getEdge().getSrc()).getLocation().distance2D(target.getLocation()))/fruit.getValue());
 				if(min>shortestpath )
 				{
 					//System.out.println("Change the min was: "+min+" Now: "+shortestpath);
@@ -314,8 +322,10 @@ public class SimpleGameClient {
 		}//for
 		
 		robot.setTarget(target);
+		target.getEdge().setTag(1);
 		return target;
 	}//choose_Close_Fruites
+
 
 
 
@@ -332,6 +342,7 @@ public class SimpleGameClient {
 		}//for
 		return true;
 	}//true
+
 
 	/**
 	 * Check if this fruit is on target of some another robot
