@@ -4,6 +4,7 @@ package gameClient;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import Server.game_service;
@@ -127,8 +128,8 @@ public class KML_Logger implements Runnable {
 			str+=	"<Placemark>\r\n"+
 
 					"<TimeSpan>\r\n"+
-					"<begin>"+time+"</begin>\r\n" + 
-					"<end>" + (time+1) + "</end>\r\n"+
+					"<begin>"+LocalDateTime.now()+"</begin>\r\n" + 
+					"<end>" + (LocalDateTime.now()) + "</end>\r\n"+
 					"</TimeSpan>\r\n"+
 
 					"<Style id=\"mycustommarker\">\r\n" + 
@@ -169,8 +170,8 @@ public class KML_Logger implements Runnable {
 			str+=	"<Placemark>\r\n"+
 
 					"<TimeSpan>\r\n"+
-					"<begin>"+time+"</begin>\r\n" + 
-					"<end>" + (time+1) + "</end>\r\n"+
+					"<begin>"+LocalDateTime.now()+"</begin>\r\n" + 
+					"<end>" + LocalDateTime.now() + "</end>\r\n"+
 					"</TimeSpan>\r\n"+
 
 					"<color>"+color[i]+"</color>"+

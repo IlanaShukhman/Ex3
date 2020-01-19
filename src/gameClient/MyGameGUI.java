@@ -274,7 +274,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 		StdDraw.text(230.0, 570.0 , "Score: "+Double.toString(this.score));
 		StdDraw.text(50.0, 570.0 , "Level: "+Double.toString(this.level));
 		StdDraw.text(140.0, 570.0 , "Time: "+Double.toString(this.timeToEnd));
-		StdDraw.text(330.0, 570.0 , "Moves: "+Double.toString(this.moves));
+		StdDraw.text(340.0, 570.0 , "Moves: "+Double.toString(this.moves));
 	}//drawScore
 
 	/**

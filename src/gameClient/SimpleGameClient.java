@@ -165,7 +165,7 @@ public class SimpleGameClient {
 				robots.get(i).initFromJson(robot_json);
 				//if it is automatic
 				if(gui.getState()==1) {
-
+					
 					Automatic_Movement am = new Automatic_Movement(g_algo, fruits, robots);
 					dest = am.nextNodeAuto(graph, src, robots.get(i));
 					robot.set_dest(dest);	
