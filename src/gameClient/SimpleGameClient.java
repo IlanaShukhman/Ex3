@@ -44,30 +44,22 @@ public class SimpleGameClient {
 	private static Graph_Algo g_algo;
 
 	public static void main(String[] a) {
+
 		SimpleGameClient sgc= new SimpleGameClient();
 	}
 
 	public SimpleGameClient() {
-		//Choose scenario num
 		Ex3_Algo ex3_alg=new Ex3_Algo();
-
-		//Create Graph
 		String s=chooseScenarioFromList();
-
-		//if the user decided to cancel
 		if(s==null)
 			return;
-
 		int scenario_num =Integer.valueOf(s);
 		game_service game = Game_Server.getServer(scenario_num); // you have [0,23] games
 		String g = game.getGraph();
 		gameGraph = new DGraph();
-		gameGraph.init(g);
-
-		//Create the lists of robots and fruits
 		robots=new ArrayList<Robot>();
 		fruits=new ArrayList<Fruit>();
-		
+		gameGraph.init(g);
 		//Game Server information such as:fruites,moves,grade,robots,graph,data
 		String info = game.toString();
 		GameServer gameServer=new GameServer();
@@ -88,6 +80,7 @@ public class SimpleGameClient {
 		}//for
 
 		Comparator<Fruit> compare=new Comparator<Fruit>() {
+
 			@Override
 			public int compare(Fruit f1, Fruit f2) {
 				int dp =(int)(f2.getValue()-f1.getValue());
@@ -119,17 +112,18 @@ public class SimpleGameClient {
 		gui.setMap(gameServer.get_data());
 		System.out.println(gameServer.get_data());
 		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
-
-		// should be a Thread!!!
 		while(game.isRunning()) {
 			moveRobots(game, gameGraph);
 		}//while
-
 		System.out.println(robots);
 		gui.setIsRunning(false);
 		String results = game.toString();
 		System.out.println("Game Over: "+results);
 	}
+
+
+
+	
 
 
 	/**
@@ -149,6 +143,7 @@ public class SimpleGameClient {
 				GameServer gameServer=new GameServer();
 				gameServer.initFromJson(info);
 				gui.setScore(gameServer.get_grade());
+				gui.setMoves(gameServer.get_number_of_moves());
 				String robot_json = log.get(i);
 				Robot robot=new Robot();
 				robot.initFromJson(robot_json);
@@ -157,10 +152,6 @@ public class SimpleGameClient {
 				int dest = robot.get_dest();
 				Point3D pos = robot.get_pos();
 				robots.get(i).initFromJson(robot_json);;
-				//if it is automatic
-
-
-
 				if(gui.getState()==1) {
 					dest = nextNodeAuto(graph, src, robots.get(i));
 					robot.set_dest(dest);	
@@ -172,15 +163,7 @@ public class SimpleGameClient {
 						System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
 						System.out.println(robot.toJSON());
-
-						//					System.out.println("Robot is:"+robot.get_id()+" Turn to node: "+dest+"  time to end:"+(t/1000));
-						//					System.out.println("Turn to node: "+dest+"  time to end:"+(t/1000));
-						//					System.out.println(robot.toJSON());
-
 					}//if
-
-					//if it is manual
-
 				//if it is manual
 				else if(gui.getState()==0) {
 					robot=gui.getSelectedRobot();
@@ -195,9 +178,9 @@ public class SimpleGameClient {
 						game.chooseNextEdge(rid, d);
 					}
 				}//else if
-				
 				updateSrc();
 			}//for
+			
 			updateFruites(game,fruits,graph);
 		}//if
 	}//moveRobots
@@ -344,11 +327,13 @@ public class SimpleGameClient {
 	}//true
 
 
-	/**
-	 * Check if this fruit is on target of some another robot
-	 * @param f
-	 * @return
-	 */
+/**
+ * Check if is already targeted
+ * true: return the robot id 
+ * false: return -1
+ * @param f
+ * @return
+ */
 	private static int alreadyTargeted(Fruit f) {
 		for (int i=0;i<robots.size();i++) {
 			if(robots.get(i).getTarget().equals(f))
