@@ -194,7 +194,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			double xr=updateX(robot.get_pos().x());
 			double yr=updateY(robot.get_pos().y());
 
-			StdDraw.filledCircle(xr, yr, 10);
+			StdDraw.circle(xr, yr, 10);
 			StdDraw.text(xr, yr-20,"Grade:"+String.valueOf(robot.get_value()));
 			StdDraw.text(xr, yr-40,"Speed:"+String.valueOf(robot.get_speed()));
 			if(robot.equals(selectedRobot)){
