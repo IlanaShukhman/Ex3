@@ -184,8 +184,7 @@ public class Robot_Client {
 	 * @param r
 	 * @return
 	 */
-	public boolean equals(robot r)
-	{
+	public boolean equals(robot r){
 		return (r.getID()==this._id);
 	}//equals
 	/**

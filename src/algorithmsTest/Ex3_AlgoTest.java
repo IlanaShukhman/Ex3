@@ -1,4 +1,4 @@
-package algorithms;
+package algorithmsTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import Server.Game_Server;
 import Server.game_service;
+import algorithms.Ex3_Algo;
 import dataStructure.DGraph;
 import dataStructure.EdgeData;
 import dataStructure.edge_data;
@@ -76,7 +77,7 @@ class Ex3_AlgoTest {
 		
 		Ex3_Algo a=new Ex3_Algo();
 
-		edge_data EXPECTED=new EdgeData(8,9,1.8);
+		edge_data EXPECTED=new EdgeData(9,8,1.8);
 		edge_data ACTUAL=a.fetchFruitToEdge(fruit, gameGraph);
 		assertEquals(EXPECTED.getSrc(),ACTUAL.getSrc(),"ERR: failed to return true when the src nodes are the same");
 		assertEquals(EXPECTED.getDest(),ACTUAL.getDest(),"ERR: failed to return true when the dst nodes are the same");

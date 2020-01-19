@@ -17,18 +17,18 @@ class Robot_Client_Test {
 		ACTUAL.initFromJson(str);
 		Point3D p=new Point3D(35.19597880064568,32.10154696638656,0.0);
 		Robot_Client EXPECTED=new Robot_Client(0,p, 0,9, -1, 1);
-		assertTrue(ACTUAL.equals(EXPECTED), "ERR: Didn't return true when the robots are the same");
-
+		assertEquals(ACTUAL.toString(),EXPECTED.toString(), "ERR: Didn't return true when the fruits are the same");
+		
 	}
 
 	@Test
 	final void testToJSON() {
 		Point3D p=new Point3D(35.19597880064568,32.10154696638656,0.0);
-		Robot_Client EXPECTED=new Robot_Client(0,p, 0,9, -1, 1);
+		Robot_Client EXPECTED=new Robot_Client(0, p, 0,9, -1, 1);
 		String str=EXPECTED.toJSON();
 		Robot_Client ACTUAL=new Robot_Client();
 		ACTUAL.initFromJson(str);
-		assertTrue(ACTUAL.equals(EXPECTED), "ERR: Didn't return true when the fruits are the same");
+		assertEquals(ACTUAL.toString(),EXPECTED.toString(), "ERR: Didn't return true when the fruits are the same");
 	}
 
 }
