@@ -362,7 +362,8 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 		path.add(dst);
 		if(this.Graph.getNode(dest).getWeight()==Integer.MAX_VALUE)
 			return path;
-		
+		if(dest==src)
+			return path;
 		
 		while(dst.getKey()!=src)
 		{
@@ -381,22 +382,35 @@ public class Graph_Algo implements graph_algorithms,Serializable{
 		}//else
 
 	}//shortestPath
-	public List<Integer> BFS_PATH(int src_key,int dest_key)
+	public List<node_data> BFS_PATH(int src,int dest)
 	{
-		List<Integer> path=new ArrayList<Integer>();
-		BFS(src_key);
-		if(src_key==dest_key)
+		
+		BFS(src);
+		List<node_data> path=new ArrayList<node_data>();
+		
+		node_data dst=this.Graph.getNode(dest);
+		path.add(dst);
+		if(this.Graph.getNode(dest).getWeight()==Integer.MAX_VALUE)
 			return path;
-		path.add(src_key);
-		while(dest_key!=src_key)
+		if(dest==src)
+			return path;
+		
+		while(dst.getKey()!=src)
 		{
-			path.add(dest_key);
-			node_data node = Graph.getNode(dest_key);
-			dest_key=this.predessesors.get(node).getKey();
-			
+			dst=predessesors.get(dst);
+			path.add(dst);
 		}//while
-		reverse(path);
-		return path;
+		if(path.size()>1) {
+			ArrayList<node_data> short_path=Reverse(path);
+			return short_path;
+		}//if
+		else
+		{
+			path.add(this.Graph.getNode(src));
+			ArrayList<node_data> short_path=Reverse(path);
+			return short_path;
+		}//else
+
 	}//BFS_PATH
 	/**
 	 * computes a relatively short path which visit each node in the targets List.
