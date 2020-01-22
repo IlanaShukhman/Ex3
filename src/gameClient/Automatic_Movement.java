@@ -2,6 +2,7 @@ package gameClient;
 
 import java.util.List;
 
+import Server.Fruit;
 import algorithms.Ex3_Algo;
 import algorithms.Graph_Algo;
 import dataStructure.graph;
@@ -32,7 +33,11 @@ public class Automatic_Movement {
 	}
 
 	
-	
+	public void update(Graph_Algo g_algo, List<Fruit_Client> fruits, List<Robot_Client> robots) {
+		this.g_algo = g_algo;
+		this.fruits = fruits;
+		this.robots = robots;
+	}
 	
 
 	/**
@@ -48,7 +53,6 @@ public class Automatic_Movement {
 
 		g_algo=new Graph_Algo(g);
 		List<node_data> path=g_algo.shortestPath(src, close_fruit.getEdge().getSrc());
-		//List<node_data> path=g_algo.BFS_PATH(src, close_fruit.getEdge().getSrc());
 		if(path.size()==1)
 			close_fruit.getEdge().setTag(0);
 		path.add(g.getNode(close_fruit.getEdge().getDest()));
@@ -69,16 +73,13 @@ public class Automatic_Movement {
 		int src=robot.get_src();
 		float shortestpath=0;
 		g_algo=new Graph_Algo(g);
-		//g_algo.BFS(src);
 		Fruit_Client target=robot.getTarget();
 		float min=(float) ((g_algo.shortestPathDist(src,target.getEdge().getSrc())+g.getNode(target.getEdge().getSrc()).getLocation().distance2D(target.getLocation())));
-		//float min=(float) ((g.getNode(target.getEdge().getSrc()).getWeight()+g.getNode(target.getEdge().getSrc()).getLocation().distance2D(target.getLocation()))/target.getValue());
 		for (Fruit_Client fruit : fruits) {
 			if(alreadyTargeted(fruit)==-1)
 			{
 				double innerDistance=g.getNode(fruit.getEdge().getSrc()).getLocation().distance3D(fruit.getLocation());
 				shortestpath=(float) (float) ((g_algo.shortestPathDist(src,fruit.getEdge().getSrc())+innerDistance));
-				//shortestpath=(float) ((g.getNode(fruit.getEdge().getSrc()).getWeight()+g.getNode(fruit.getEdge().getSrc()).getLocation().distance2D(target.getLocation()))/fruit.getValue());
 				if(min>shortestpath )
 				{
 					//System.out.println("Change the min was: "+min+" Now: "+shortestpath);

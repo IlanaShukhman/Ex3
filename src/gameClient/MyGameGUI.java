@@ -203,6 +203,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			StdDraw.circle(xr, yr, 10);
 			StdDraw.text(xr, yr-20, "Grade:"+String.valueOf(robot.get_value()));
 			StdDraw.text(xr, yr-40, "Speed:"+String.valueOf(robot.get_speed()));
+			StdDraw.text(xr, yr-60, "Target:["+robot.getTarget().getEdge().getSrc()+","+robot.getTarget().getEdge().getDest()+"]"+" Value:"+robot.getTarget().getValue());
 			if(robot.equals(selectedRobot)){
 				StdDraw.circle(xr,yr,12);
 			}//if
@@ -228,7 +229,7 @@ public class MyGameGUI  extends JFrame implements ActionListener, MouseListener,
 			else if(fruit.getType()==1) {
 				StdDraw.picture(xr, yr, "apple.png", 25, 25);
 			}
-
+			
 		}
 
 	}

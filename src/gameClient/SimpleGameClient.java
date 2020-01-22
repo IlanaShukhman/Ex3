@@ -22,18 +22,18 @@ import algorithms.*;;
 /**
  * This class represents a simple example for using the GameServer API:
  * the main file performs the following tasks:
- * 1. Creates a game_service [0,23] (line 36)
- * 2. Constructs the graph from JSON String (lines 37-39)
- * 3. Gets the scenario JSON String (lines 40-41)
- * 4. Prints the fruits data (lines 49-50)
- * 5. Add a set of robots (line 52-53) // note: in general a list of robots should be added
- * 6. Starts game (line 57)
- * 7. Main loop (should be a thread) (lines 59-60)
- * 8. move the robot along the current edge (line 74)
- * 9. direct to the next edge (if on a node) (line 87-88)
- * 10. prints the game results (after "game over"): (line 63)
+ * 1. Creates a game_service [0,23] 
+ * 2. Constructs the graph from JSON String 
+ * 3. Gets the scenario JSON String 
+ * 4. Prints the fruits data 
+ * 5. Add a set of robots  // note: in general a list of robots should be added
+ * 6. Starts game 
+ * 7. Main loop (should be a thread) 
+ * 8. move the robot along the current edge 
+ * 9. direct to the next edge (if on a node) 
+ * 10. prints the game results (after "game over"):
  *
- * @author boaz.benmoshe
+ * @author Michael & Ilana
  *
  */
 public class SimpleGameClient {
@@ -42,7 +42,7 @@ public class SimpleGameClient {
 	private static MyGameGUI gui;
 	private static DGraph gameGraph;
 	private static Graph_Algo g_algo;
-
+	
 
 	public static void main(String[] a) {
 		SimpleGameClient scp = new SimpleGameClient();
@@ -97,11 +97,11 @@ public class SimpleGameClient {
 			}
 		};
 
-
+		//Sorting the fruits by values
 		fruits.sort(compare);
 		System.out.println(fruits.toString());
 
-
+		// update and displaying the Robots
 		for(int i = 0;i<numRobots;i++) {
 			game.addRobot(fruits.get(i).getEdge().getSrc());
 			Robot_Client r=new Robot_Client();
@@ -118,11 +118,13 @@ public class SimpleGameClient {
 		gui.setMap(gameServer.get_data());
 		System.out.println(gameServer.get_data());
 
-
+		Automatic_Movement am = new Automatic_Movement(g_algo, fruits, robots);
 		KML_Logger kmlFile=new KML_Logger(scenario_num, gameGraph, robots, fruits, game);
+		
 		try {
 			while(game.isRunning()) {
-				moveRobots(game, gameGraph);
+				moveRobots(game, gameGraph,am);
+				Thread.sleep(0);
 			}//while
 		}
 		catch(Exception e) {
@@ -143,7 +145,7 @@ public class SimpleGameClient {
 	 * @param graph
 	 * @param log
 	 */
-	private static void moveRobots(game_service game, graph graph) {
+	private static void moveRobots(game_service game, graph graph,Automatic_Movement am) {
 		List<String> log = game.move();
 		if(log!=null) {
 			long t = game.timeToEnd();
@@ -162,13 +164,14 @@ public class SimpleGameClient {
 				int rid = robot.get_id();
 				int src = robot.get_src();
 				int dest = robot.get_dest();
+				double value=robot.get_value();
+				double speed=robot.get_speed();
 				Point3D pos = robot.get_pos();
-				robots.get(i).set_pos(pos);
+				robots.get(i).update(rid,pos, value, speed);
 				//robots.get(i).initFromJson(robot_json);
 				//if it is automatic
 				if(gui.getState()==1) {
-
-					Automatic_Movement am = new Automatic_Movement(g_algo, fruits, robots);
+					am.update(g_algo, fruits, robots);
 					dest = am.nextNodeAuto(graph, src, robots.get(i));
 					robot.set_dest(dest);	
 					game.chooseNextEdge(rid, dest);
@@ -187,8 +190,9 @@ public class SimpleGameClient {
 						}
 						int d = mm.nextNodeManual(src, robots.get(i).get_dest());
 						game.chooseNextEdge(rid, d);
-					}
+					}//if
 				}//else if
+				updateSrc();
 			}//for
 			
 			updateFruites(game);
@@ -226,5 +230,23 @@ public class SimpleGameClient {
 		}//for
 
 	}//updateFruites
+	/**
+	 * This function 
+	 */
+	private static void updateSrc() {
+		for(Robot_Client robot: robots) {
+			for(Integer node : gameGraph.get_Node_Hash().keySet()) {
+				if(isClose(robot.get_pos(), gameGraph.getNode(node).getLocation())){
+					robot.set_src(node);
+				}
+			}
+		}
 
+	}
+
+	private static boolean isClose(Point3D node1, Point3D node2) {
+		if(node1.distance2D(node2)<0.0005)
+			return true;
+		return false;
+	}
 }

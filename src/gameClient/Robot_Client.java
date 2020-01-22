@@ -1,3 +1,4 @@
+
 package gameClient;
 
 import org.json.JSONObject;
@@ -37,7 +38,24 @@ public class Robot_Client {
 		this._dest = _dest;
 		this._speed = _speed;
 	}
-
+	/**
+	 * Updating the necessary things
+	 * @param is
+	 * @param pos
+	 * @param value
+	 * @param speed
+	 */
+	public void update(int id,Point3D pos,double value,double speed)
+	{
+		this._pos=pos;
+		this._value=value;
+		this._speed=speed;
+		this._id=id;
+	}//update
+	/**
+	 * Parsing all the information from json
+	 * @param json
+	 */
 	public void initFromJson(String json)
 	{
 		try {
